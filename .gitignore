@@ -16,9 +16,9 @@
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
+*.suo
+*.ipch
+Browse.VC.db
 
 # Compiled Static libraries
 *.lai
@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+/.vs
+/Release
+/Debug
