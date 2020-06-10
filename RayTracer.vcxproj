@@ -91,6 +91,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,16 +152,104 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Box.h" />
+    <ClInclude Include="BVH.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Color.h" />
+    <ClInclude Include="Intersection.h" />
+    <ClInclude Include="IntersectionAccelerator.h" />
+    <ClInclude Include="KDTree.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="Materials\DielectricMaterial.h" />
+    <ClInclude Include="Materials\IsotropicMaterial.h" />
+    <ClInclude Include="Materials\MaterialManager.h" />
+    <ClInclude Include="Materials\MetalMaterial.h" />
+    <ClInclude Include="Materials\LambertianMaterial.h" />
+    <ClInclude Include="Materials\Material.h" />
+    <ClInclude Include="Math.h" />
+    <ClInclude Include="Matrix.h" />
+    <ClInclude Include="NHeap.h" />
+    <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjectFactory.h" />
+    <ClInclude Include="Objects\Box.h" />
+    <ClInclude Include="Objects\Cone.h" />
+    <ClInclude Include="Objects\CSGNode.h" />
+    <ClInclude Include="Objects\CSGObject.h" />
+    <ClInclude Include="Objects\Cylinder.h" />
+    <ClInclude Include="Objects\Ellipsoid.h" />
+    <ClInclude Include="Objects\Polygon.h" />
+    <ClInclude Include="Objects\PolygonMesh.h" />
+    <ClInclude Include="Objects\SignedDistanceFunctionObject.h" />
+    <ClInclude Include="Objects\Sphere.h" />
+    <ClInclude Include="Objects\VolumetricConstantMedium.h" />
+    <ClInclude Include="OctTree.h" />
+    <ClInclude Include="Options.h" />
+    <ClInclude Include="OrthoNormalBasis.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="pdf.h" />
+    <ClInclude Include="Photon.h" />
+    <ClInclude Include="PhotonMap.h" />
+    <ClInclude Include="Ray.h" />
+    <ClInclude Include="RayTracer.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="stb_image_write.h" />
+    <ClInclude Include="Test.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="Transform.h" />
+    <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Box3.cpp" />
+    <ClCompile Include="BVH.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Color.cpp" />
+    <ClCompile Include="Intersection.cpp" />
+    <ClCompile Include="KDTree.cpp" />
+    <ClCompile Include="Light.cpp" />
+    <ClCompile Include="Materials\DielectricMaterial.cpp" />
+    <ClCompile Include="Materials\IsotropicMaterial.cpp" />
+    <ClCompile Include="Materials\LambertianMaterial.cpp" />
+    <ClCompile Include="Materials\Material.cpp" />
+    <ClCompile Include="Materials\MaterialManager.cpp" />
+    <ClCompile Include="Materials\MetalMaterial.cpp" />
+    <ClCompile Include="Math.cpp" />
+    <ClCompile Include="Matrix.cpp" />
+    <ClCompile Include="NHeap.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="ObjectFactory.cpp" />
+    <ClCompile Include="Objects\Box.cpp" />
+    <ClCompile Include="Objects\Cone.cpp" />
+    <ClCompile Include="Objects\CSGNode.cpp" />
+    <ClCompile Include="Objects\CSGObject.cpp" />
+    <ClCompile Include="Objects\Cylinder.cpp" />
+    <ClCompile Include="Objects\Ellipsoid.cpp" />
+    <ClCompile Include="Objects\Polygon.cpp" />
+    <ClCompile Include="Objects\PolygonMesh.cpp" />
+    <ClCompile Include="Objects\SignedDistanceFunctionObject.cpp" />
+    <ClCompile Include="Objects\Sphere.cpp" />
+    <ClCompile Include="Objects\VolumetricConstantMedium.cpp" />
+    <ClCompile Include="OctTree.cpp" />
+    <ClCompile Include="Options.cpp" />
+    <ClCompile Include="OrthoNormalBasis.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="pdf.cpp" />
+    <ClCompile Include="Photon.cpp" />
+    <ClCompile Include="PhotonMap.cpp" />
+    <ClCompile Include="Ray.cpp" />
     <ClCompile Include="RayTracer.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="stb_image_write.cpp" />
+    <ClCompile Include="Test.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -34,3 +34,9 @@ Browse.VC.db
 /.vs
 /Release
 /Debug
+/x64
+/RayTracerTest/x64
+/RayTracerTest/Debug
+/RayTracerTest/Release
+
+*.png
