@@ -117,9 +117,6 @@
     <ClInclude Include="Objects\Polygon.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\PolygonMesh.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="Objects\SignedDistanceFunctionObject.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
@@ -163,6 +160,9 @@
       <Filter>Header Files\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Objects\Box.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\TriangleMesh.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
@@ -257,9 +257,6 @@
     <ClCompile Include="Objects\Polygon.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\PolygonMesh.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="Objects\SignedDistanceFunctionObject.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
@@ -300,6 +297,9 @@
       <Filter>Source Files\Materials</Filter>
     </ClCompile>
     <ClCompile Include="Objects\Box.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\TriangleMesh.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
   </ItemGroup>

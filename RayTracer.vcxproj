@@ -178,7 +178,7 @@
     <ClInclude Include="Objects\Cylinder.h" />
     <ClInclude Include="Objects\Ellipsoid.h" />
     <ClInclude Include="Objects\Polygon.h" />
-    <ClInclude Include="Objects\PolygonMesh.h" />
+    <ClInclude Include="Objects\TriangleMesh.h" />
     <ClInclude Include="Objects\SignedDistanceFunctionObject.h" />
     <ClInclude Include="Objects\Sphere.h" />
     <ClInclude Include="Objects\VolumetricConstantMedium.h" />
@@ -225,7 +225,7 @@
     <ClCompile Include="Objects\Cylinder.cpp" />
     <ClCompile Include="Objects\Ellipsoid.cpp" />
     <ClCompile Include="Objects\Polygon.cpp" />
-    <ClCompile Include="Objects\PolygonMesh.cpp" />
+    <ClCompile Include="Objects\TriangleMesh.cpp" />
     <ClCompile Include="Objects\SignedDistanceFunctionObject.cpp" />
     <ClCompile Include="Objects\Sphere.cpp" />
     <ClCompile Include="Objects\VolumetricConstantMedium.cpp" />
