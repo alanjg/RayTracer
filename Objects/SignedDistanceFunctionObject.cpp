@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "SignedDistanceFunctionObject.h"
 
+ISignedDistanceFunction::~ISignedDistanceFunction()
+{
+}
+
 double& GridSignedDistanceFunction::get(int i, int j, int k)
 {
 	return grid_[i * y_ * z_ + j * z_ + k];
@@ -174,13 +178,14 @@ Vector3 GridSignedDistanceFunction::GetMin() const
 {
 	return Vector3(0, 0, 0);
 }
+
 Vector3 GridSignedDistanceFunction::GetMax() const
 {
 	return Vector3(x_, y_, z_);
 }
 
-SignedDistanceFunctionObject::SignedDistanceFunctionObject(ISignedDistanceFunction* function, const Transform& transform, const Material* material) :
-	Object(transform, material), function_(function)
+SignedDistanceFunctionShape::SignedDistanceFunctionShape(ISignedDistanceFunction* function) :
+	function_(function)
 {
 	Vector3 min = function->GetMin();
 	Vector3 max = function->GetMax();
@@ -190,45 +195,45 @@ SignedDistanceFunctionObject::SignedDistanceFunctionObject(ISignedDistanceFuncti
 	vertices.push_back(Vector3(max[0], min[1], min[2]));
 	vertices.push_back(Vector3(max[0], max[1], min[2]));
 	vertices.push_back(Vector3(min[0], max[1], min[2]));
-	polygons[0] = new Polygon(vertices, transform, material);
+	polygons[0] = new Polygon(vertices);
 
 	vertices.clear();
 	vertices.push_back(Vector3(min[0], min[1], min[2]));
 	vertices.push_back(Vector3(max[0], min[1], min[2]));
 	vertices.push_back(Vector3(max[0], min[1], max[2]));
 	vertices.push_back(Vector3(min[0], min[1], max[2]));
-	polygons[1] = new Polygon(vertices, transform, material);
+	polygons[1] = new Polygon(vertices);
 
 	vertices.clear();
 	vertices.push_back(Vector3(min[0], min[1], min[2]));
 	vertices.push_back(Vector3(min[0], max[1], min[2]));
 	vertices.push_back(Vector3(min[0], max[1], max[2]));
 	vertices.push_back(Vector3(min[0], min[1], max[2]));
-	polygons[2] = new Polygon(vertices, transform, material);
+	polygons[2] = new Polygon(vertices);
 
 	vertices.clear();
 	vertices.push_back(Vector3(min[0], min[1], max[2]));
 	vertices.push_back(Vector3(max[0], min[1], max[2]));
 	vertices.push_back(Vector3(max[0], max[1], max[2]));
 	vertices.push_back(Vector3(min[0], max[1], max[2]));
-	polygons[3] = new Polygon(vertices, transform, material);
+	polygons[3] = new Polygon(vertices);
 
 	vertices.clear();
 	vertices.push_back(Vector3(min[0], max[1], min[2]));
 	vertices.push_back(Vector3(max[0], max[1], min[2]));
 	vertices.push_back(Vector3(max[0], max[1], max[2]));
 	vertices.push_back(Vector3(min[0], max[1], max[2]));
-	polygons[4] = new Polygon(vertices, transform, material);
+	polygons[4] = new Polygon(vertices);
 
 	vertices.clear();
 	vertices.push_back(Vector3(max[0], min[1], min[2]));
 	vertices.push_back(Vector3(max[0], max[1], min[2]));
 	vertices.push_back(Vector3(max[0], max[1], max[2]));
 	vertices.push_back(Vector3(max[0], min[1], max[2]));
-	polygons[5] = new Polygon(vertices, transform, material);
+	polygons[5] = new Polygon(vertices);
 }
 
-bool SignedDistanceFunctionObject::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const
+bool SignedDistanceFunctionShape::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const
 {
 	// Push ray forward by tMin to avoid intersecting before tMin
 	Ray rayCopy(ray);
@@ -241,36 +246,35 @@ bool SignedDistanceFunctionObject::GetIntersectionPoints(const Ray& ray, std::ve
 	// 2. use ray marching by moving forwards by the absolute value of the signed distance function until within 1 cell
 	// 3. Step in cell fractions until the sign changes
 	// 4. Binary search the remaining distance
-	Ray localRay = transform_.TransformWorldToLocal(rayCopy);
-	Ray tempRay(localRay);
+	Ray tempRay(rayCopy);
 	Intersection intersect;
-	intersect.intersectionTime = -1;
+	intersect.distance = -1;
 	Vector3 vmin = function_->GetMin();
 	Vector3 vmax = function_->GetMax();
 
 	// 1. If the ray origin is not within the bounding box, move it to the bounding box.
-	if (!contains(vmin, vmax, localRay.origin))
+	if (!contains(vmin, vmax, ray.origin))
 	{
 		for (int i = 0; i < 6; i++)
 		{
 			Intersection temp;
-			// Use the world ray here, because the polygons have the same transform applied.  tMin was already applied.
+			// tMin was already applied.
 			if (polygons[i]->Intersect(rayCopy, temp, 0, tMax))
 			{
-				if (temp.intersectionTime < intersect.intersectionTime || intersect.intersectionTime == -1)
+				if (temp.distance < intersect.distance || intersect.distance == -1)
 				{
 					intersect = temp;
 				}
 			}
 		}
 
-		if (intersect.intersectionTime == -1)
+		if (intersect.distance == -1)
 		{
 			return false;
 		}
 		else
 		{
-			tempRay.origin = transform_.TransformWorldPointToLocal(intersect.point);
+			tempRay.origin = intersect.point;
 		}
 	}
 
@@ -338,14 +342,12 @@ bool SignedDistanceFunctionObject::GetIntersectionPoints(const Ray& ray, std::ve
 
 	if (firstPointOnly)
 	{
-		Ray result;
-		result.origin = tempRay.origin;
-		gradient(tempRay.origin[0], tempRay.origin[1], tempRay.origin[2], result.direction[0], result.direction[1], result.direction[2]);
-		result.direction.Normalize();
-		Ray resultWorldRay = transform_.TransformLocalToWorld(result);
-		firstIntersection.point = resultWorldRay.origin;
-		firstIntersection.normal = resultWorldRay.direction;
-		firstIntersection.intersectionTime = (ray.origin - firstIntersection.point).Magnitude();
+		Vector3 point = tempRay.origin;
+		Vector3 normal = Gradient(point);
+		normal.Normalize();
+		firstIntersection.point = point;
+		firstIntersection.normal = normal;
+		firstIntersection.distance = (ray.origin - firstIntersection.point).Magnitude();
 		if (firstIntersection.normal.Dot(ray.direction) > 0)
 		{
 			firstIntersection.internalIntersection = true;
@@ -360,13 +362,7 @@ bool SignedDistanceFunctionObject::GetIntersectionPoints(const Ray& ray, std::ve
 	}
 }
 
-bool SignedDistanceFunctionObject::Contains(const Vector3& point)
-{
-	// CSG only
-	return false;
-}
-
-SignedDistanceFunctionObject::~SignedDistanceFunctionObject()
+SignedDistanceFunctionShape::~SignedDistanceFunctionShape()
 {
 	for (int i = 0; i < 6; i++)
 		delete polygons[i];
@@ -374,23 +370,25 @@ SignedDistanceFunctionObject::~SignedDistanceFunctionObject()
 	delete function_;
 }
 
-Vector3 SignedDistanceFunctionObject::GetMin() const
+Vector3 SignedDistanceFunctionShape::GetMin() const
 {
-	return transform_.TransformLocalPointToWorld(function_->GetMin());
+	return function_->GetMin();
 }
 
-Vector3 SignedDistanceFunctionObject::GetMax() const
+Vector3 SignedDistanceFunctionShape::GetMax() const
 {
-	return transform_.TransformLocalPointToWorld(function_->GetMax());
+	return function_->GetMax();
 }
 
-void SignedDistanceFunctionObject::gradient(double x, double y, double z, double& gx, double& gy, double& gz) const
+Vector3 SignedDistanceFunctionShape::Gradient(Vector3 position) const
 {
-	double dx = 1;
-	double dy = 1;
-	double dz = 1;
-	double center = function_->Evaluate(Vector3(x, y, z));
-	gx = (function_->Evaluate(Vector3(x + dx, y, z)) - center) / dx;
-	gy = (function_->Evaluate(Vector3(x, y + dy, z)) - center) / dy;
-	gz = (function_->Evaluate(Vector3(x, y, z + dz)) - center) / dz;
+	Vector3 dx(1, 0, 0);
+	Vector3 dy(0, 1, 0);
+	Vector3 dz(0, 0, 1);
+	double center = function_->Evaluate(position);
+	Vector3 g(0, 0, 0);
+	g[0] = (function_->Evaluate(position + dx) - center) / dx[0];
+	g[1] = (function_->Evaluate(position + dy) - center) / dy[1];
+	g[2] = (function_->Evaluate(position + dz) - center) / dz[2];
+	return g;
 }

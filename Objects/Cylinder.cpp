@@ -1,48 +1,38 @@
 #include "pch.h"
 #include "Cylinder.h"
 
-Cylinder::Cylinder(double radius, double height, const Transform& transform, const Material* material):
-	Object(transform, material)	
+Cylinder::Cylinder(double radius, double height) :
+	radius_(radius), height_(height)
 {
-	radius_ = radius;
-	height_ = height;
-}
-
-Cylinder::~Cylinder()
-{
-
 }
 
 bool Cylinder::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const
 {
-	firstIntersection.intersectionTime = tMax;
+	firstIntersection.distance = tMax;
 
 	//solve for top & bottom
-	Ray localRay = transform_.TransformWorldToLocal(ray);
-	if (localRay.direction[1] != 0)
+	if (ray.direction[1] != 0)
 	{
-		double top = (height_ - localRay.origin[1]) / localRay.direction[1];
-		double bottom = -localRay.origin[1] / localRay.direction[1];
-		
-		if (top > 0.0 && (!firstPointOnly || top < firstIntersection.intersectionTime) && top > tMin && top < tMax)
-		{
-			Ray result;
-			result.origin = localRay.origin + top * localRay.direction;
-			result.direction = Vector3(0, 1, 0);
+		double top = (height_ - ray.origin[1]) / ray.direction[1];
+		double bottom = -ray.origin[1] / ray.direction[1];
 
+		if (top > 0.0 && (!firstPointOnly || top < firstIntersection.distance) && top > tMin && top < tMax)
+		{
+			Vector3 point = ray.origin + top * ray.direction;
+			Vector3 normal(0, 1, 0);
+			
 			Intersection intersection;
-			if (height_ - localRay.origin[1])
+			if (height_ - ray.origin[1])
 			{
 				intersection.internalIntersection = true;
-				result.direction[1] = -1;
+				normal[1] = -1;
 			}
 
-			if (result.origin[0] * result.origin[0] + result.origin[2] * result.origin[2] <= radius_ * radius_)
+			if (point[0] * point[0] + point[2] * point[2] <= radius_ * radius_)
 			{
-				result = transform_.TransformLocalToWorld(result);
-				intersection.point = result.origin;
-				intersection.normal = result.direction;
-				intersection.intersectionTime = top;
+				intersection.point = point;
+				intersection.normal = normal;
+				intersection.distance = top;
 				if (firstPointOnly)
 				{
 					firstIntersection = intersection;
@@ -53,24 +43,23 @@ bool Cylinder::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& 
 				}
 			}
 		}
-		if (bottom > 0.0 && (!firstPointOnly || bottom < firstIntersection.intersectionTime) && bottom > tMin && bottom < tMax)
+		if (bottom > 0.0 && (!firstPointOnly || bottom < firstIntersection.distance) && bottom > tMin && bottom < tMax)
 		{
-			Ray result;
-			result.origin = localRay.origin + bottom * localRay.direction;
-			result.direction = Vector3(0, -1, 0);
+			Vector3 point = ray.origin + bottom * ray.direction;
+			Vector3 normal(0, -1, 0);
+
 			Intersection intersection;
 			intersection.internalIntersection = false;
-			if (localRay.origin[1] > 0)
+			if (ray.origin[1] > 0)
 			{
 				intersection.internalIntersection = true;
-				result.direction[1] = 1;
+				normal[1] = 1;
 			}
-			if (result.origin[0]*result.origin[0]+result.origin[2]*result.origin[2] <= radius_ * radius_)
+			if (point[0] * point[0] + point[2] * point[2] <= radius_ * radius_)
 			{
-				result = transform_.TransformLocalToWorld(result);
-				intersection.point = result.origin;
-				intersection.normal = result.direction;
-				intersection.intersectionTime = bottom;
+				intersection.point = point;
+				intersection.normal = normal;
+				intersection.distance = bottom;
 				if (firstPointOnly)
 				{
 					firstIntersection = intersection;
@@ -84,41 +73,40 @@ bool Cylinder::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& 
 	}
 
 	// now check sides
-	Vector3 direction = localRay.direction;
+	Vector3 direction = ray.direction;
 	direction[1] = 0;
-	Vector3 origin = localRay.origin;
+	Vector3 origin = ray.origin;
 	origin[1] = 0;
 	double a = direction.Dot(direction);
 	double b = 2.0 * direction.Dot(origin);
 	double c = origin.Dot(origin) - radius_ * radius_;
-	double disc = b*b - 4*a*c;
-    
+	double disc = b * b - 4 * a * c;
+
 	if (disc < 0.0)
 	{
-		return firstIntersection.intersectionTime < tMax || intersectionPoints.size() > 0;
+		return firstIntersection.distance < tMax || intersectionPoints.size() > 0;
 	}
 
-    disc = sqrt(disc);
-    double t1 = (-b-disc) / (2*a);
-	if (t1 > 0.0 && (!firstPointOnly || t1 < firstIntersection.intersectionTime) && t1 > tMin && t1 < tMax)
+	disc = sqrt(disc);
+	double t1 = (-b - disc) / (2 * a);
+	if (t1 > 0.0 && (!firstPointOnly || t1 < firstIntersection.distance) && t1 > tMin && t1 < tMax)
 	{
 		Intersection intersection;
 		intersection.internalIntersection = false;
-		Ray result;
-		result.origin = localRay.origin + t1 * localRay.direction;
-		result.direction = result.origin - Vector3(0, result.origin[1], 0);
+		Vector3 point = ray.origin + t1 * ray.direction;
+		Vector3 normal = point - Vector3(0, point[1], 0);
+		normal.Normalize();
 		if (c < INTERSECTION_ADJUSTMENT)
 		{
 			intersection.internalIntersection = true;
-			result.direction *= -1;
+			normal *= -1;
 		}
-		result.direction.Normalize();
-		if (result.origin[1] > 0 && result.origin[1] < height_)
+		
+		if (point[1] > 0 && point[1] < height_)
 		{
-			result = transform_.TransformLocalToWorld(result);
-			intersection.point = result.origin;
-			intersection.normal = result.direction;
-			intersection.intersectionTime = t1;
+			intersection.point = point;
+			intersection.normal = normal;
+			intersection.distance = t1;
 			if (firstPointOnly)
 			{
 				firstIntersection = intersection;
@@ -128,30 +116,29 @@ bool Cylinder::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& 
 			{
 				intersectionPoints.push_back(intersection);
 			}
-			
+
 		}
 	}
 
-    double t2 = (-b+disc) / (2*a);
-	if(t2 > 0.0 && (!firstPointOnly || t2 < firstIntersection.intersectionTime) && t2 > tMin && t2 < tMax)
+	double t2 = (-b + disc) / (2 * a);
+	if (t2 > 0.0 && (!firstPointOnly || t2 < firstIntersection.distance) && t2 > tMin && t2 < tMax)
 	{
 		Intersection intersection;
 		intersection.internalIntersection = false;
-		Ray result;
-		result.origin = localRay.origin + t2 * localRay.direction;
-		result.direction = result.origin - Vector3(0, result.origin[1], 0);
+		Vector3 point = ray.origin + t2 * ray.direction;
+		Vector3 normal = point - Vector3(0, point[1], 0);
+		normal.Normalize();
+
 		if (c < INTERSECTION_ADJUSTMENT)
 		{
 			intersection.internalIntersection = true;
-			result.direction *= -1;
+			normal *= -1;
 		}
-		result.direction.Normalize();
-		if (result.origin[1] > 0 && result.origin[1] < height_)
+		if (point[1] > 0 && point[1] < height_)
 		{
-			result = transform_.TransformLocalToWorld(result);
-			intersection.point = result.origin;
-			intersection.normal = result.direction;
-			intersection.intersectionTime = t2;
+			intersection.point = point;
+			intersection.normal = normal;
+			intersection.distance = t2;
 			if (firstPointOnly)
 			{
 				firstIntersection = intersection;
@@ -161,59 +148,18 @@ bool Cylinder::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& 
 			{
 				intersectionPoints.push_back(intersection);
 			}
-			
+
 		}
 	}
-	return firstIntersection.intersectionTime != tMax || intersectionPoints.size() > 0;
-}
-
-bool Cylinder::Contains(const Vector3& point)
-{
-	Vector3 localPoint = transform_.TransformWorldPointToLocal(point);
-	if(localPoint[1] < 0.0 || localPoint[1] > height_)
-		return false;
-	localPoint[1] = 0.0;
-	return localPoint.Magnitude() <= radius_ + INTERSECTION_ADJUSTMENT;
+	return firstIntersection.distance != tMax || intersectionPoints.size() > 0;
 }
 
 Vector3 Cylinder::GetMin() const
 {
-	Vector3 box[8];
-	box[0] = Vector3(-radius_,0,-radius_);
-	box[1] = Vector3(radius_,0,-radius_);
-	box[2] = Vector3(-radius_,0,radius_);
-	box[3] = Vector3(radius_,0,radius_);
-	box[4] = Vector3(-radius_,height_,-radius_);
-	box[5] = Vector3(radius_,height_,-radius_);
-	box[6] = Vector3(-radius_,height_,radius_);
-	box[7] = Vector3(radius_,height_,radius_);
-
-	for(int i=0;i<8;i++)
-		box[i] = transform_.TransformLocalPointToWorld(box[i]);
-	
-	Vector3 vmin = box[0];
-	for(int i=1;i<8;i++)
-		vmin = VMin(vmin,box[i]);
-	return vmin;
+	return Vector3(-radius_, 0, -radius_);;
 }
 
 Vector3 Cylinder::GetMax() const
 {
-	Vector3 box[8];
-	box[0] = Vector3(-radius_,0,-radius_);
-	box[1] = Vector3(radius_,0,-radius_);
-	box[2] = Vector3(-radius_,0,radius_);
-	box[3] = Vector3(radius_,0,radius_);
-	box[4] = Vector3(-radius_,height_,-radius_);
-	box[5] = Vector3(radius_,height_,-radius_);
-	box[6] = Vector3(-radius_,height_,radius_);
-	box[7] = Vector3(radius_,height_,radius_);
-
-	for(int i=0;i<8;i++)
-		box[i] = transform_.TransformLocalPointToWorld(box[i]);
-	
-	Vector3 vmax = box[0];
-	for(int i=1;i<8;i++)
-		vmax = VMax(vmax,box[i]);
-	return vmax;
+	return Vector3(radius_, height_, radius_);;
 }

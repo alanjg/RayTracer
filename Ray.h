@@ -8,5 +8,4 @@ struct Ray
 	Ray();
 };
 
-
 bool RayBoxIntersect(const Ray& ray, const Vector3& vmin, const Vector3& vmax);

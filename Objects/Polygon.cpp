@@ -23,17 +23,12 @@ bool PointInPolygon(const std::vector<Vector3>& vertices, const Vector3& point)
 	return fabs(angleSum-2*3.14159) <= INTERSECTION_ADJUSTMENT;
 }
 
-Polygon::Polygon(const std::vector<Vector3>& points, const Transform& transform, const Material* material):
-	Object(transform, material),points_(points)
+Polygon::Polygon(const std::vector<Vector3>& points) :
+	points_(points)
 {
-	normal_ = (points[2]-points[1]).Cross(points[0]-points[1]);
+	normal_ = (points[2] - points[1]).Cross(points[0] - points[1]);
 	normal_.Normalize();
 	planeDistance_ = -normal_.Dot(points[0]);
-}
-
-Polygon::~Polygon()
-{
-
 }
 
 Vector3 Polygon::GetNormal()
@@ -42,95 +37,6 @@ Vector3 Polygon::GetNormal()
 }
 
 bool Polygon::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const
-{
-	Ray localRay = transform_.TransformWorldToLocal(ray);
-	double den = -normal_.Dot(localRay.direction);
-	if (den == 0)
-	{
-		return false;
-	}
-
-    double t=(planeDistance_ + normal_.Dot(localRay.origin))/den;
-	if (t <= 0.0)
-	{
-		return false;
-	}
-
-	Vector3 point = localRay.origin + localRay.direction * t;
-	if (!PointInPolygon(points_, point))
-	{
-		return false;
-	}
-
-	if (t > tMin && t < tMax)
-	{
-		Ray result;
-		result.origin = point;
-		result.direction = normal_;
-		result = transform_.TransformLocalToWorld(result);
-		Intersection intersection;
-		intersection.point = result.origin;
-		intersection.normal = result.direction;
-		intersection.intersectionTime = t;
-		if (firstPointOnly)
-		{
-			firstIntersection = intersection;
-			return true;
-		}
-		else
-		{
-			intersectionPoints.push_back(intersection);
-		}
-	}
-	return false;
-}
-
-bool Polygon::Contains(const Vector3& point)
-{
-	Vector3 localPoint = transform_.TransformWorldPointToLocal(point);
-	if(localPoint.Dot(normal_) + planeDistance_ > INTERSECTION_ADJUSTMENT)
-		return false;
-	return PointInPolygon(points_,localPoint);
-}
-
-Vector3 Polygon::GetMin() const
-{
-	Vector3 vmin = points_[0];
-	for(unsigned int i=1;i<points_.size();i++)
-		vmin = VMin(vmin,points_[i]);
-	return vmin;
-}
-
-Vector3 Polygon::GetMax() const
-{
-	
-	Vector3 vmax = points_[0];
-	for(unsigned int i=1;i<points_.size();i++)
-		vmax = VMax(vmax,points_[i]);
-	return vmax;
-}
-
-//shape
-
-PolygonShape::PolygonShape(const std::vector<Vector3>& points) :
-	points_(points)
-{
-	normal_ = (points[2] - points[1]).Cross(points[0] - points[1]);
-	normal_.Normalize();
-	planeDistance_ = -normal_.Dot(points[0]);
-}
-
-PolygonShape::~PolygonShape()
-{
-
-}
-
-Vector3 PolygonShape::GetNormal()
-{
-	return normal_;
-}
-
-bool PolygonShape::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const
 {
 	double den = -normal_.Dot(ray.direction);
 	if (den == 0)
@@ -155,7 +61,12 @@ bool PolygonShape::GetIntersectionPoints(const Ray& ray, std::vector<Intersectio
 		Intersection intersection;
 		intersection.point = point;
 		intersection.normal = normal_;
-		intersection.intersectionTime = t;
+		intersection.distance = t;
+		if (normal_.Dot(ray.direction) > 0)
+		{
+			intersection.internalIntersection = true;
+			intersection.normal *= -1;
+		}
 		if (firstPointOnly)
 		{
 			firstIntersection = intersection;
@@ -169,7 +80,7 @@ bool PolygonShape::GetIntersectionPoints(const Ray& ray, std::vector<Intersectio
 	return false;
 }
 
-Vector3 PolygonShape::GetMin() const
+Vector3 Polygon::GetMin() const
 {
 	Vector3 vmin = points_[0];
 	for (unsigned int i = 1; i < points_.size(); i++)
@@ -177,7 +88,7 @@ Vector3 PolygonShape::GetMin() const
 	return vmin;
 }
 
-Vector3 PolygonShape::GetMax() const
+Vector3 Polygon::GetMax() const
 {
 	Vector3 vmax = points_[0];
 	for (unsigned int i = 1; i < points_.size(); i++)

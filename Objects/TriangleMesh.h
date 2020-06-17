@@ -5,10 +5,10 @@
 #include "../Ray.h"
 #include "../Transform.h"
 
-class PolygonMesh
+class TriangleMesh
 {
 public:
-	PolygonMesh();
-	~PolygonMesh();
+	TriangleMesh();
+	~TriangleMesh();
 };
 

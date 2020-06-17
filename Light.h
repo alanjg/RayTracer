@@ -49,12 +49,12 @@ public:
 
 class AreaLight : public Light
 {
-	Object* lightObject_;
+	IObject* lightObject_;
 protected:
-	AreaLight(const Color& power, Object* object);
+	AreaLight(const Color& power, IObject* object);
 
 public:
-	Object* GetLightObject() const;
+	IObject* GetLightObject() const;
 	virtual ~AreaLight() {}
 };
 
@@ -67,7 +67,7 @@ private:
 	Vector3 normal_;
 	Vector3 GetRandomPointInRect() const;
 public:
-	RectangleAreaLight(Object* lightObject, const Vector3& ll, const Vector3& lr, const Vector3& ul, const Color& power, const Color& emittance);
+	RectangleAreaLight(IObject* lightObject, const Vector3& ll, const Vector3& lr, const Vector3& ul, const Color& power, const Color& emittance);
 	virtual Photon GenerateRandomPhoton(Vector3& direction) const;
 	virtual Color SampleLightEmittance(const Intersection& intersection, Vector3& sampleDirection, double& samplePdf) const;
 	virtual double EvaluateRadianceTransfer(const Intersection& surfaceIntersection, const Intersection& shadowRayIntersection) const;
@@ -75,7 +75,7 @@ public:
 	virtual ~RectangleAreaLight() {}
 };
 
-std::pair<std::unique_ptr<RectangleAreaLight>, std::unique_ptr<Object>> CreateRectangleAreaLight(const Vector3& ll, const Vector3& lr, const Vector3& ul, const Color& power, const Color& emittance, const Transform& transform, const Material* material);
+std::pair<std::unique_ptr<RectangleAreaLight>, std::unique_ptr<IObject>> CreateRectangleAreaLight(const Vector3& ll, const Vector3& lr, const Vector3& ul, const Color& power, const Color& emittance, const Transform& transform, const Material* material);
 
 /*
 

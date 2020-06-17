@@ -16,7 +16,7 @@
 typedef std::map<std::string, Material*> MaterialMap;
 MaterialMap materials;
 
-SignedDistanceFunctionObject* MakeLevelSetObject(std::istream& in)
+ShapeObject* MakeLevelSetObject(std::istream& in)
 {
 	std::cerr << "Making signed distance object" << std::endl;
 	std::string s;
@@ -59,10 +59,11 @@ SignedDistanceFunctionObject* MakeLevelSetObject(std::istream& in)
 		}
 		in >> s;
 	}
-	return new SignedDistanceFunctionObject(function, transform, material);
+	SignedDistanceFunctionShape* functionShape = new SignedDistanceFunctionShape(function);
+	return new ShapeObject(functionShape, transform, material);
 }
 
-Sphere* MakeSphere(std::istream& in)
+ShapeObject* MakeSphere(std::istream& in)
 {
 	std::cerr << "Making sphere" << std::endl;
 	std::string s;
@@ -102,10 +103,11 @@ Sphere* MakeSphere(std::istream& in)
 		}
 		in >> s;
 	}
-	return new Sphere(radius, transform, material);
+	Sphere* sphere = new Sphere(radius);
+	return new ShapeObject(sphere, transform, material);
 }
 
-Ellipsoid* MakeEllipsoid(std::istream& in)
+ShapeObject* MakeEllipsoid(std::istream& in)
 {
 	std::cerr << "Making ellipsoid" << std::endl;
 	std::string s;
@@ -145,10 +147,11 @@ Ellipsoid* MakeEllipsoid(std::istream& in)
 		}
 		in >> s;
 	}
-	return new Ellipsoid(radii, transform, material);
+	Ellipsoid* ellipsoid = new Ellipsoid(radii);
+	return new ShapeObject(ellipsoid, transform, material);
 }
 
-Cylinder* MakeCylinder(std::istream& in)
+ShapeObject* MakeCylinder(std::istream& in)
 {
 	//		cerr<<"Making cylinder"<<endl;
 	std::string s;
@@ -194,10 +197,11 @@ Cylinder* MakeCylinder(std::istream& in)
 		}
 		in >> s;
 	}
-	return new Cylinder(radius, height, transform, material);
+	Cylinder* cylinder = new Cylinder(radius, height);
+	return new ShapeObject(cylinder, transform, material);
 }
 
-Cone* MakeCone(std::istream& in)
+ShapeObject* MakeCone(std::istream& in)
 {
 	//		cerr<<"Making cone"<<endl;
 	std::string s;
@@ -248,10 +252,11 @@ Cone* MakeCone(std::istream& in)
 		}
 		in >> s;
 	}
-	return new Cone(bottomRadius, topRadius, height, transform, material);
+	Cone* cone = new Cone(bottomRadius, topRadius, height);
+	return new ShapeObject(cone, transform, material);
 }
 
-Polygon* MakePolygon(std::istream& in)
+ShapeObject* MakePolygon(std::istream& in)
 {
 	//		cerr<<"Making polygon"<<endl;
 	std::string s;
@@ -298,7 +303,17 @@ Polygon* MakePolygon(std::istream& in)
 		}
 		in >> s;
 	}
-	return new Polygon(points, transform, material);
+	Polygon* polygon = new Polygon(points);
+	return new ShapeObject(polygon, transform, material);
+}
+
+CSGNode* MakeNodeFromObject(IObject* object)
+{
+	ShapeObject* shapeObject = dynamic_cast<ShapeObject*>(object);
+	if (shapeObject != nullptr)
+	{
+		return new CSGNode(shapeObject->GetShape(), shapeObject->GetTransform());
+	}
 }
 
 CSGNode* MakeTree(const std::string& equation, const std::map<std::string, IObject*>& nodes)
@@ -319,7 +334,7 @@ CSGNode* MakeTree(const std::string& equation, const std::map<std::string, IObje
 		std::cerr << "Cannot find " << name << std::endl;
 		exit(0);
 	}
-	CSGNode* root = new CSGNode(it->second);
+	CSGNode* root = MakeNodeFromObject(it->second);
 	while (!ops.empty())
 	{
 		op = ops.top();
@@ -332,7 +347,7 @@ CSGNode* MakeTree(const std::string& equation, const std::map<std::string, IObje
 			std::cerr << "Cannot find " << name << std::endl;
 			exit(0);
 		}
-		CSGNode* node = new CSGNode(it->second);
+		CSGNode* node = MakeNodeFromObject(it->second);
 		switch (op)
 		{
 		case '&':
@@ -349,7 +364,7 @@ CSGNode* MakeTree(const std::string& equation, const std::map<std::string, IObje
 	return root;
 }
 
-CSGObject* MakeCSG(std::istream& in)
+ShapeObject* MakeCSG(std::istream& in)
 {
 	std::cerr << "Making CSGObject" << std::endl;
 	std::string s;
@@ -404,51 +419,53 @@ CSGObject* MakeCSG(std::istream& in)
 	}
 	//parse equation
 	root = MakeTree(equation, nodes);
-	return new CSGObject(root, transform, material);
+	CSGShape* node = new CSGShape(root);
+	return new ShapeObject(node, transform, material);
 }
 
-Object* MakeObject(std::istream& in)
+IObject* MakeObject(std::istream& in)
 {
 	std::string s;
 	in >> s;
+	std::transform(s.begin(), s.end(), s.begin(), std::tolower);
 
-	if (s == "Sphere" || s == "sphere")
+	if (s == "sphere")
 	{
 		char c;
 		in >> c;
 		return MakeSphere(in);
 	}
-	else if (s == "Cylinder" || s == "cylinder")
+	else if (s == "cylinder")
 	{
 		char c;
 		in >> c;
 		return MakeCylinder(in);
 	}
-	else if (s == "polygon" || s == "Polygon")
+	else if (s == "polygon")
 	{
 		char c;
 		in >> c;
 		return MakePolygon(in);
 	}
-	else if (s == "cone" || s == "Cone")
+	else if (s == "cone")
 	{
 		char c;
 		in >> c;
 		return MakeCone(in);
 	}
-	else if (s == "Ellipsoid" || s == "ellipsoid")
+	else if (s == "ellipsoid")
 	{
 		char c;
 		in >> c;
 		return MakeEllipsoid(in);
 	}
-	else if (s == "csg" || s == "Csg" || s == "CSG")
+	else if (s == "csg")
 	{
 		char c;
 		in >> c;
 		return MakeCSG(in);
 	}
-	else if (s == "LevelSetGrid" || s == "levelsetgrid")
+	else if (s == "levelsetgrid")
 	{
 		char c;
 		in >> c;

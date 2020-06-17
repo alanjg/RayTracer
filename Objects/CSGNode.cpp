@@ -29,14 +29,9 @@ bool csgOperation(bool lhs, bool rhs, CSGOperationType operation)
 		return false;
 	}
 }
-	
-CSGNode::CSGNode(CSGNode* left, CSGNode* right):
-	left_(left),right_(right)
-{
-}
 
-CSGNode::CSGNode(IObject* child) :
-	left_(nullptr), right_(nullptr), child_(child), operation_(CSGOperationType::Union)
+CSGNode::CSGNode(const Shape* childShape, Transform transform) :
+	left_(nullptr), right_(nullptr), child_(childShape), transform_(transform), operation_(CSGOperationType::Union)
 {
 }
 
@@ -45,41 +40,11 @@ CSGNode::CSGNode(CSGNode* left, CSGNode* right, CSGOperationType operation) :
 {
 }
 
-void CSGNode::GetPoints(const Ray& ray, std::vector<Intersection>& points, double tMin, double tMax) const
-{
-
-}
-
-bool CSGNode::Contains(const Vector3& point)
-{
-	if (child_ != nullptr)
-	{
-		return child_->Contains(point);
-	}
-	else if (operation_ == CSGOperationType::Union)
-	{
-		return left_->Contains(point) || right_->Contains(point);
-	}
-	else if (operation_ == CSGOperationType::Intersection)
-	{
-		return left_->Contains(point) && right_->Contains(point);
-	}
-	else if (operation_ == CSGOperationType::Difference)
-	{
-		return left_->Contains(point) && !right_->Contains(point);
-	}
-	else
-	{
-		// should not get here
-		return false;
-	}
-}
-
 Vector3 CSGNode::GetMin() const
 {
 	if (child_ != nullptr)
 	{
-		return child_->GetMin();
+		return transform_.TransformLocalPointToWorld(child_->GetMin());
 	}
 	else
 	{
@@ -91,7 +56,7 @@ Vector3 CSGNode::GetMax() const
 {
 	if (child_ != nullptr)
 	{
-		return child_->GetMax();
+		return transform_.TransformLocalPointToWorld(child_->GetMax());
 	}
 	else
 	{
@@ -99,51 +64,27 @@ Vector3 CSGNode::GetMax() const
 	}
 }
 
-void CSGNode::GetPointsEx(const Ray& ray, std::vector<Intersection>& points, double tMin, double tMax) const
+void CSGNode::GetPoints(const Ray& ray, std::vector<Intersection>& points, double tMin, double tMax) const
 {
 	if (child_ != nullptr)
 	{
-		child_->GetPoints(ray, points, tMin, tMax);
+		Ray localRay = transform_.TransformWorldToLocal(ray);
+		child_->GetPoints(localRay, points, tMin, tMax);
+		for (Intersection& intersection : points)
+		{
+			intersection = transform_.TransformLocalIntersectionToWorld(ray, intersection);
+		}
 	}
 	else
 	{
 		std::vector<Intersection> p1, p2;
-		left_->GetPointsEx(ray, p1, tMin, tMax);
-		right_->GetPointsEx(ray, p2, tMin, tMax);
+		left_->GetPoints(ray, p1, tMin, tMax);
+		right_->GetPoints(ray, p2, tMin, tMax);
 		std::sort(p1.begin(), p1.end());
 		std::sort(p2.begin(), p2.end());
 		MergeCSGSegments(ray, p1, p2, points, operation_);
 	}	
 }
-
-class CSGContains
-{
-	CSGNode* obj_;
-public:
-	CSGContains(CSGNode* obj): obj_(obj) {}
-	bool operator()(const Intersection& intersection) const
-	{
-		return obj_->Contains(intersection.point);
-	}
-};
-
-class PointListContains
-{
-	std::vector<Intersection>& intersections_;
-public:
-	PointListContains(std::vector<Intersection>& intersections) : intersections_(intersections) {}
-	bool operator()(const Intersection& intersection) const
-	{
-		for (auto x : intersections_)
-		{
-			if ((x.point - intersection.point).MagnitudeSquared() < EPSILON*EPSILON)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-}; 
 
 // leftPoints and rightPoints must be sorted by intersection time
 void MergeCSGSegments(const Ray& incidentRay, const std::vector<Intersection>& leftPoints, const std::vector<Intersection>& rightPoints, std::vector<Intersection>& mergedPoints, CSGOperationType operation)
@@ -165,26 +106,26 @@ void MergeCSGSegments(const Ray& incidentRay, const std::vector<Intersection>& l
 	while (leftAt >= 0 || rightAt >= 0)
 	{
 		currentSegment.inside = csgOperation(leftInside, rightInside, operation);
-		if (leftAt >= 0 && rightAt >= 0 && Equals(leftPoints[leftAt].intersectionTime, rightPoints[rightAt].intersectionTime))
+		if (leftAt >= 0 && rightAt >= 0 && Equals(leftPoints[leftAt].distance, rightPoints[rightAt].distance))
 		{
 			// overlapping intersection, take the left one arbitrarily and advance both
-			currentSegment.startTime = leftPoints[leftAt].intersectionTime;
+			currentSegment.startTime = leftPoints[leftAt].distance;
 			currentSegment.startIntersection = leftPoints[leftAt];
 			leftInside = !leftInside;
 			rightInside = !rightInside;
 			leftAt--;
 			rightAt--;
 		}
-		else if (leftAt >= 0 && (rightAt == -1 || leftPoints[leftAt].intersectionTime > rightPoints[rightAt].intersectionTime))
+		else if (leftAt >= 0 && (rightAt == -1 || leftPoints[leftAt].distance > rightPoints[rightAt].distance))
 		{
-			currentSegment.startTime = leftPoints[leftAt].intersectionTime;
+			currentSegment.startTime = leftPoints[leftAt].distance;
 			currentSegment.startIntersection = leftPoints[leftAt];
 			leftInside = !leftInside;
 			leftAt--;
 		}
 		else
 		{
-			currentSegment.startTime = rightPoints[rightAt].intersectionTime;
+			currentSegment.startTime = rightPoints[rightAt].distance;
 			currentSegment.startIntersection = rightPoints[rightAt];
 			rightInside = !rightInside;
 			rightAt--;

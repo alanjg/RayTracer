@@ -15,7 +15,7 @@ int main()
 	global_options.photon_map_max_sample_distance = 20;
 	//global_options.use_photon_map_approximation = true;
 	//global_options.debug_caustics_photon_map = true;
-	//global_options.use_caustics = true;
+	global_options.use_caustics = true;
 	global_options.num_samples = 1;
 	global_options.global_photon_map_photon_count = 500000;
 	global_options.global_photon_map_sample_count = 500;
@@ -26,10 +26,10 @@ int main()
 #endif // !DEBUG
 
 	//rt.LoadScene("g:/code/raytracer/Scenes/cornell_water.txt");
-	test.LoadScene8();
+	test.LoadTestScene8();
 	//rt.RenderToFile("test.png", 2560, 1440);
-	rt.RenderToFile("test.png", 400, 400);
-	//rt.RenderToFile("test.png", 800, 800);
+	//rt.RenderToFile("test.png", 400, 400);
+	rt.RenderToFile("test.png", 800, 800);
 
 	std::chrono::system_clock::time_point t2 = std::chrono::system_clock::now();
 

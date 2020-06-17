@@ -86,7 +86,6 @@ OctTree* Scene::GetOctTree() const
 	return tree_.get();
 }
 
-
 PhotonMap* Scene::GetPhotonMap() const
 {
 	return photonMap_.get();

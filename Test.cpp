@@ -50,7 +50,7 @@ void GenSpheres(Scene* scene_, int depth, double radius, Vector3 position, Vecto
 	}
 	Transform t;
 	t.SetTranslate(position);
-	SphereShape* s = new SphereShape(radius);
+	Sphere* s = new Sphere(radius);
 	IObject* o = new ShapeObject(s, t, m);
 	scene_->AddObject(o);
 
@@ -98,7 +98,8 @@ void GenSpheres2(Scene* scene_, int depth, double radius, Vector3 position, Vect
 
 	Transform t;
 	t.SetTranslate(position);
-	Object* o = new Sphere(radius, t, m);
+	Sphere* s = new Sphere(radius);
+	IObject* o = new ShapeObject(s, t, m);
 	scene_->AddObject(o);
 
 	Vector3 directions[12];
@@ -138,20 +139,22 @@ void Test::LoadScene1()
 
 void Test::LoadScene2()
 {
+	scene_->SetBackgroundColor(Color(.7, .7, .7));
 	Camera& camera = rt.GetScene()->GetCamera();
 	camera.centerOfInterest = Vector3(0, 0, 0);
-	camera.position = Vector3(0, 150, 0);
-	camera.up = Vector3(0, 0, 1);
+	camera.position = Vector3(0, 0, 150);
+	camera.up = Vector3(0, 1, 0);
 
-	Material* m = new MetalMaterial(Color(0.8, 0.8, 0.8), 0.1);
+	Material* m = new MetalMaterial(Color(0.8, 0.8, 0.8), 0.0);
 	Transform t;
 	t.SetTranslate(-10, 0, 0);
-	Object* o = new Sphere(8, t, m);
+	Sphere* s = new Sphere(8);
+	IObject* o = new ShapeObject(s, t, m);
 	scene_->AddObject(o);
 
 	Material* m2 = new LambertianMaterial(Color(0.8, 0.0, 0.0));
 	t.SetTranslate(20, 0, 0);
-	o = new Sphere(8, t, m2);
+	o = new ShapeObject(s, t, m2);
 	scene_->AddObject(o);
 
 	Light* light = new PointLight(Vector3(0, 150, 150), Color(1000000, 1000000, 1000000), Color(100000, 100000, 100000));
@@ -172,7 +175,6 @@ void Test::LoadScene3()
 
 	Transform t;
 	LambertianMaterial* m = new LambertianMaterial(Color(1,1,1));
-	//scene_->AddObject(new CSGObject(BuildCSGTree(""), t, m));
 
 	Light* light = new PointLight(Vector3(0, 150, 150), Color(1000000, 100000, 1000000), Color(10, 10, 10));
 	scene_->AddLight(light);
@@ -185,7 +187,7 @@ void Test::LoadScene4()
 	Camera& camera = scene_->GetCamera();
 	camera.centerOfInterest = Vector3(0, 0, 0);
 	camera.position = Vector3(2.1, 1.3, 1.7);
-	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
+	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 0, 1));
 	right.Normalize();
 	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
 	up.Normalize();
@@ -195,61 +197,61 @@ void Test::LoadScene4()
 	Material* g = new LambertianMaterial(Color(0.8, 0.6, 0.264));
 	Transform t;
 	t.SetTranslate(0, 0, -30);
-	Sphere* ground = new Sphere(29.5, t, g);
-
+	Sphere* s1 = new Sphere(29.5);
+	ShapeObject* ground = new ShapeObject(s1, t, g);
 	scene_->AddObject(ground);
 
 	Material* m = new MetalMaterial(Color(1,1,1), 0.0);
 	t.SetTranslate(0, 0, 0);
-	Sphere* s = new Sphere(0.5, t, m);
+	Sphere* s2 = new Sphere(0.5);
+	ShapeObject* s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
+	Sphere* s3 = new Sphere(0.166667);
 
 	t.SetTranslate(0.272166, 0.272166, 0.544331);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s3, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(0.643951, 0.172546, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s3, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(0.172546, 0.643951, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s3, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(-0.371785, 0.0996195, 0.544331);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s3, t, m);
 	scene_->AddObject(s);
 
-
 	t.SetTranslate(-0.471405, 0.471405, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s3, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(-0.643951, -0.172546, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s3, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(0.0996195, -0.371785, 0.544331);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s3, t, m);
 	scene_->AddObject(s);
 
-
 	t.SetTranslate(-0.172546, -0.643951, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s3, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(0.471405, -0.471405, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s3, t, m);
 	scene_->AddObject(s);
 
-	Light* light = new PointLight(Vector3(4, 3, 2), Color(1000000, 100000, 1000000), Color(100, 100, 100));
+	Light* light = new PointLight(Vector3(4, 3, 2), Color(1000000, 100000, 1000000), Color(30, 30, 30));
 	scene_->AddLight(light);
 
-	light = new PointLight(Vector3(1, -4, 4), Color(1000000, 100000, 1000000), Color(100, 100, 100));
+	light = new PointLight(Vector3(1, -4, 4), Color(1000000, 100000, 1000000), Color(30, 30, 30));
 	scene_->AddLight(light);
 
-	light = new PointLight(Vector3(-3, 1, 5), Color(1000000, 100000, 1000000), Color(100, 100, 100));
+	light = new PointLight(Vector3(-3, 1, 5), Color(1000000, 100000, 1000000), Color(30, 30, 30));
 	scene_->AddLight(light);
 	scene_->BalanceTree();
 }
@@ -269,7 +271,8 @@ void Test::LoadScene5()
 	Transform t;
 	t.SetTranslate(Vector3(0, 0, -30));
 	Material* g = new LambertianMaterial(Color(0.8, 0.6, 0.264));
-	Sphere* ground = new Sphere(29.5, t, g);
+	Sphere* s = new Sphere(29.5);
+	ShapeObject* ground = new ShapeObject(s, t, g);
 	scene_->AddObject(ground);
 
 	GenSpheres2(scene_,2,0.32,Vector3(0,0,0),Vector3(0,0,0));
@@ -301,26 +304,27 @@ void Test::LoadScene6()
 	Material* g = new LambertianMaterial(Color(.8, .3, .3));
 	Transform t;
 	t.SetTranslate(0, 0, -1);
-	Sphere* ground = new Sphere(.5, t, g);
+	Sphere* s1 = new Sphere(.5);
+	ShapeObject* ground = new ShapeObject(s1, t, g);
 	scene_->AddObject(ground);
 
 	Material* m = new LambertianMaterial(Color(.8, .8, 0));
 	t.SetTranslate(0, -100.5, -1);
-	Sphere* s = new Sphere(100, t, m);
+	Sphere* s2 = new Sphere(100);
+	ShapeObject* s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
 	Material* m1 = new MetalMaterial(Color(.8, .6, .2), 0.0);
 	t.SetTranslate(1, 0, -1);
-	s = new Sphere(.5, t, m1);
+	s = new ShapeObject(s1, t, m1);
 	scene_->AddObject(s);
 
 	Material* m2 = new MetalMaterial(Color(.8, .8, .8), 0.0);
 	t.SetTranslate(-1, 0, -1);
-	s = new Sphere(.5, t, m2);
+	s = new ShapeObject(s1, t, m2);
 	scene_->AddObject(s);
 	scene_->BalanceTree();
 }
-
 
 void Test::LoadScene7()
 {
@@ -338,26 +342,27 @@ void Test::LoadScene7()
 	Material* g = new LambertianMaterial(Color(.8, .3, .3));
 	Transform t;
 	t.SetTranslate(0, 0, -1);
-	Sphere* ground = new Sphere(.5, t, g);
+	Sphere* s1 = new Sphere(.5);
+	ShapeObject* ground = new ShapeObject(s1, t, g);
 	scene_->AddObject(ground);
 
 	Material* m = new LambertianMaterial(Color(.8, .8, 0));
 	t.SetTranslate(0, -100.5, -1);
-	Sphere* s = new Sphere(100, t, m);
+	Sphere* s2 = new Sphere(100);
+	ShapeObject* s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
 	Material* m1 = new MetalMaterial(Color(.8, .6, .2), 0.0);
 	t.SetTranslate(1, 0, -1);
-	s = new Sphere(.5, t, m1);
+	s = new ShapeObject(s1, t, m1);
 	scene_->AddObject(s);
 
 	Material* m2 = new DielectricMaterial(1.5);
 	t.SetTranslate(-1, 0, -1);
-	s = new Sphere(.5, t, m2);
+	s = new ShapeObject(s1, t, m2);
 	scene_->AddObject(s);
 	scene_->BalanceTree();
 }
-
 
 void Test::LoadScene8()
 {
@@ -376,23 +381,23 @@ void Test::LoadScene8()
 	Material* g = new LambertianMaterial(Color(.4, .2, .1));
 	Transform t;
 	t.SetTranslate(-4, 1, 0);
-	Sphere* ground = new Sphere(1, t, g);
-	scene_->AddObject(ground);
+	Sphere* ground = new Sphere(1);
+	scene_->AddObject(new ShapeObject(ground, t, g));
 
 	Material* m = new LambertianMaterial(new CheckerTexture(new ConstantTexture(Color(.4, .2, .1)), new ConstantTexture(Color(0.9, 0.9, 0.9))));
 	t.SetTranslate(0, -1000, 0);
-	Sphere* s = new Sphere(1000, t, m);
-	scene_->AddObject(s);
+	Sphere* s = new Sphere(1000);
+	scene_->AddObject(new ShapeObject(s, t, m));
 
 	Material* m1 = new MetalMaterial(Color(.7, .6, .5), 0.0);
 	t.SetTranslate(4, 1, 0);
-	s = new Sphere(1, t, m1);
-	scene_->AddObject(s);
+	s = new Sphere(1);
+	scene_->AddObject(new ShapeObject(s, t, m1));
 
 	Material* m2 = new DielectricMaterial(1.5);
 	t.SetTranslate(0, 1, 0);
-	s = new Sphere(1, t, m2);
-	scene_->AddObject(s);
+	s = new Sphere(1);
+	scene_->AddObject(new ShapeObject(s, t, m2));
 
 	for (int a = -11; a < 11; a++)
 	{
@@ -416,8 +421,8 @@ void Test::LoadScene8()
 					m3 = new DielectricMaterial(1.5);
 				}
 				t.SetTranslate(center);
-				s = new Sphere(.2, t, m3);
-				scene_->AddObject(s);
+				s = new Sphere(.2);
+				scene_->AddObject(new ShapeObject(s, t, m3));
 			}
 		}
 	}
@@ -449,24 +454,29 @@ void Test::LoadScene9()
 
 	Transform t;
 	t.SetTranslate(-9.5, -13, -12);
-	Sphere* s = new Sphere(7, t, shiny);
+	Sphere* s1 = new Sphere(7);
+	ShapeObject* s = new ShapeObject(s1, t, shiny);
 	scene_->AddObject(s);
 
 	t.SetTranslate(9.5, -13, -4);
-	s = new Sphere(7, t, glass);
+	s = new ShapeObject(s1, t, glass);
 	scene_->AddObject(s);
 
 	Transform t2;
 	std::vector<Vector3> pts({ Vector3(-20,20,20), Vector3(-20,-20,20), Vector3(-20,-20,-20), Vector3(-20,20,-20) });
-	Polygon* p = new Polygon(pts, t2, red);
+	
+	Polygon* pp = new Polygon(pts);
+	ShapeObject* p = new ShapeObject(pp, t2, red);
 	scene_->AddObject(p);
 
 	pts = std::vector<Vector3>({ Vector3(20,20,20), Vector3(20,20,-20), Vector3(20,-20,-20), Vector3(20,-20,20) });
-	p = new Polygon(pts, t2, blue);
+	pp = new Polygon(pts);
+	p = new ShapeObject(pp, t2, blue);
 	scene_->AddObject(p);
 
 	pts = std::vector<Vector3>({ Vector3(-20,20,20), Vector3(-20,20,-20), Vector3(20,20,-20), Vector3(20,20,20) });
-	p = new Polygon(pts, t2, green);
+	pp = new Polygon(pts);
+	p = new ShapeObject(pp, t2, green);
 	scene_->AddObject(p);
 
 	auto ret = CreateRectangleAreaLight(Vector3(-5, 19.9, 5), Vector3(-5, 19.9, -5), Vector3(5, 19.9, 5), Color(100000, 100000, 100000), Color(100, 100, 100), t2, light);
@@ -474,16 +484,17 @@ void Test::LoadScene9()
 	scene_->AddObject(std::move(ret.second));
 
 	pts = std::vector<Vector3>({ Vector3(-20,-20,20), Vector3(20,-20,20), Vector3(20,-20,-20), Vector3(-20,-20,-20) });
-	p = new Polygon(pts, t2, grey);
+	pp = new Polygon(pts);
+	p = new ShapeObject(pp, t2, grey);
 	scene_->AddObject(p);
 
 	pts = std::vector<Vector3>({ Vector3(-20,20,-20), Vector3(-20,-20,-20), Vector3(20,-20,-20), Vector3(20,20,-20) });
-	p = new Polygon(pts, t2, grey);
+	pp = new Polygon(pts);
+	p = new ShapeObject(pp, t2, grey);
 	scene_->AddObject(p);
 
 	scene_->BalanceTree();
 }
-
 
 void Test::LoadScene10()
 {
@@ -509,26 +520,26 @@ void Test::LoadScene10()
 	Material* glass = new DielectricMaterial(1.5);
 	Transform t;
 	t.SetTranslate(-9.5, -13, -12);
-	Sphere* s = new Sphere(7, t, shiny);
-	//scene_->AddObject(s);
-	scene_->AddObject(new VolumetricConstantMedium(s, .1, t, new ConstantTexture(Color(1, 1, 1))));
+	Sphere* s1 = new Sphere(7);
+	scene_->AddObject(new VolumetricConstantMedium(s1, .1, t, new ConstantTexture(Color(1, 1, 1))));
 
 	t.SetTranslate(9.5, -13, -4);
-	s = new Sphere(7, t, glass);
-	scene_->AddObject(new VolumetricConstantMedium(s, .1, t, new ConstantTexture(Color(0, 0, 0))));
-	//scene_->AddObject(s);
+	scene_->AddObject(new VolumetricConstantMedium(s1, .1, t, new ConstantTexture(Color(0, 0, 0))));
 
 	Transform t2;
 	std::vector<Vector3> pts({ Vector3(-20,20,20), Vector3(-20,-20,20), Vector3(-20,-20,-20), Vector3(-20,20,-20) });
-	Polygon* p = new Polygon(pts, t2, red);
+	Polygon* ps = new Polygon(pts);
+	ShapeObject* p = new ShapeObject(ps, t2, red);
 	scene_->AddObject(p);
 
 	pts = std::vector<Vector3>({ Vector3(20,20,20), Vector3(20,20,-20), Vector3(20,-20,-20), Vector3(20,-20,20) });
-	p = new Polygon(pts, t2, blue);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, blue);
 	scene_->AddObject(p);
 
 	pts = std::vector<Vector3>({ Vector3(-20,20,20), Vector3(-20,20,-20), Vector3(20,20,-20), Vector3(20,20,20) });
-	p = new Polygon(pts, t2, green);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, green);
 	scene_->AddObject(p);
 
 	auto ret = CreateRectangleAreaLight(Vector3(-10, 19.9, 10), Vector3(-10, 19.9, -10), Vector3(10, 19.9, 10), Color(100000, 100000, 100000), Color(50, 50, 50), t2, light);
@@ -536,80 +547,14 @@ void Test::LoadScene10()
 	scene_->AddObject(std::move(ret.second));
 
 	pts = std::vector<Vector3>({ Vector3(-20,-20,20), Vector3(20,-20,20), Vector3(20,-20,-20), Vector3(-20,-20,-20) });
-	p = new Polygon(pts, t2, grey);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, grey);
 	scene_->AddObject(p);
 
 	pts = std::vector<Vector3>({ Vector3(-20,20,-20), Vector3(-20,-20,-20), Vector3(20,-20,-20), Vector3(20,20,-20) });
-	p = new Polygon(pts, t2, grey);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, grey);
 	scene_->AddObject(p);
-
-	scene_->BalanceTree();
-}
-
-
-void Test::LoadScene11()
-{
-	// cornell box with smoke spheres
-	scene_->SetBackgroundColor(Color(0.05, 0.05, 0.05));
-	Camera& camera = scene_->GetCamera();
-	camera.centerOfInterest = Vector3(278, 278, 0);
-	camera.position = Vector3(278, 278, -800);
-	camera.aperture = 0.0;
-	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
-	right.Normalize();
-	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
-	up.Normalize();
-	camera.up = up;
-	camera.fov = 40;
-
-	Material* red = new LambertianMaterial(Color(.65, .05, .05));
-	Material* green = new LambertianMaterial(Color(.12, .45, .15));
-	Material* white = new LambertianMaterial(Color(.73, .73, .73));
-	
-	Material* lightMaterial = new DiffuseLightMaterial(Color(1, 1, 1));
-	double lightPower = 3000000;
-
-	Transform t1;
-	std::pair<std::unique_ptr<Light>, std::unique_ptr<Object>> lightPair = CreateRectangleAreaLight(Vector3(213, 554, -227), Vector3(213, 554, -332), Vector3(343, 554, -227), Color(lightPower, lightPower, lightPower), Color(30, 30, 30), t1, lightMaterial);
-	scene_->AddLight(std::move(lightPair.first));
-	scene_->AddObject(std::move(lightPair.second));
-
-	Transform t2;
-	//right wall
-	std::vector<Vector3> pts({ Vector3(555,0,0),  Vector3(555,0,555), Vector3(555,555,555), Vector3(555,555,0), });
-	Polygon* p = new Polygon(pts, t2, green);
-	scene_->AddObject(p);
-
-	//left wall
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,555,0) , Vector3(0,555,555), Vector3(0,0,555) });
-	p = new Polygon(pts, t2, red);
-	scene_->AddObject(p);
-
-	//ceiling
-	pts = std::vector<Vector3>({ Vector3(0,555,0),  Vector3(555,555,0), Vector3(555,555,555), Vector3(0,555,555) });
-	p = new Polygon(pts, t2, white);
-	scene_->AddObject(p);
-
-	//floor
-	pts = std::vector<Vector3>({ Vector3(0,0,0),Vector3(0,0,555),  Vector3(555,0,555), Vector3(555,0,0) });
-	p = new Polygon(pts, t2, white);
-	scene_->AddObject(p);
-
-	//back wall
-	pts = std::vector<Vector3>({ Vector3(0,0,555), Vector3(0,555,555), Vector3(555,555,555), Vector3(555,0,555) });
-	p = new Polygon(pts, t2, white);
-	scene_->AddObject(p);
-
-	Transform t;
-	t.SetTranslate(130, 80, 165);
-	Sphere* s = new Sphere(80, t, white);
-	scene_->AddObject(s);
-	//scene_->AddObject(new ConstantMedium(s, .01, t, new ConstantTexture(Color(1, 1, 1))));
-
-	t.SetTranslate(365, 120, 395);
-	s = new Sphere(120, t, white);
-	//scene_->AddObject(new ConstantMedium(s, .01, t, new ConstantTexture(Color(0, 0, 0))));
-	scene_->AddObject(s);
 
 	scene_->BalanceTree();
 }
@@ -621,71 +566,73 @@ void Test::LoadTestScene1()
 	Camera& camera = scene_->GetCamera();
 	camera.centerOfInterest = Vector3(0, 0, 0);
 	camera.position = Vector3(2.1, 1.3, 1.7);
-	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
+	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 0, 1));
 	right.Normalize();
 	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
 	up.Normalize();
 	camera.up = up;
 	camera.fov = 45;
 
-
 	LambertianMaterial* g = new LambertianMaterial(Color(0.8, 0.6, 0.264));
 	Transform t;
 	t.SetTranslate(0, 0, -30);
-	std::unique_ptr<Object> ground(new Sphere(29.5, t, g));
+	Shape* sphere = new Sphere(29.5);
+	std::unique_ptr<IObject> ground(new ShapeObject(sphere, t, g));
 
 	scene_->AddObject(std::move(ground));
 
 	LambertianMaterial* m = new LambertianMaterial(Color(0.4, 0.45, 0.35));
 	
 	t.SetTranslate(0, 0, 0);
-	Object* s = new Sphere(0.5, t, m);
+	Sphere* s1 = new Sphere(0.5);
+	IObject* s = new ShapeObject(s1, t, m);
 	scene_->AddObject(s);
 
 
 	t.SetTranslate(0.272166, 0.272166, 0.544331);
-	s = new Sphere(0.166667, t, m);
+	Sphere* s2 = new Sphere(0.166667);
+	s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(0.643951, 0.172546, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(0.172546, 0.643951, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(-0.371785, 0.0996195, 0.544331);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(-0.471405, 0.471405, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(-0.643951, -0.172546, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(0.0996195, -0.371785, 0.544331);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(-0.172546, -0.643951, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
 	t.SetTranslate(0.471405, -0.471405, 5.23308e-17);
-	s = new Sphere(0.166667, t, m);
+	s = new ShapeObject(s2, t, m);
 	scene_->AddObject(s);
 
-	std::unique_ptr<Light> light(new PointLight(Vector3(4, 3, 2), Color(4, 4, 4), Color(1, 1, 1)));
+	std::unique_ptr<Light> light(new PointLight(Vector3(4, 3, 2), Color(4, 4, 4), Color(4, 4, 4)));
 	scene_->AddLight(std::move(light));
 
-	light.reset(new PointLight(Vector3(1, -4, 4), Color(4, 4, 4), Color(1, 1, 1)));
+	light.reset(new PointLight(Vector3(1, -4, 4), Color(4, 4, 4), Color(4, 4, 4)));
 	scene_->AddLight(std::move(light));
 
-	light.reset(new PointLight(Vector3(-3, 1, 5), Color(4, 4, 4), Color(1, 1, 1)));
+	light.reset(new PointLight(Vector3(-3, 1, 5), Color(4, 4, 4), Color(4, 4, 4)));
 	scene_->AddLight(std::move(light));
 	scene_->BalanceTree();
 }
@@ -716,36 +663,43 @@ void Test::LoadTestScene2()
 	Transform t2;
 	//right wall
 	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* p = new Polygon(pts, t2, green);
+	Polygon* ps = new Polygon(pts);
+	ShapeObject* p = new ShapeObject(ps, t2, green);
 	scene_->AddObject(p);
 
 	//left wall
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	p = new Polygon(pts, t2, red);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, red);
 	scene_->AddObject(p);
 
 	//ceiling
 	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//floor
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//back wall
 	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	Transform t;
 	t.SetTranslate(365, 80, -165);
-	Sphere* s = new Sphere(80, t, white);
+	Sphere* s1 = new Sphere(80);
+	ShapeObject* s = new ShapeObject(s1, t, white);
 	scene_->AddObject(s);
 
 	t.SetTranslate(130, 120, -395);
-	s = new Sphere(120, t, white);
+	s1 = new Sphere(120);
+	s = new ShapeObject(s1, t, white);
 	scene_->AddObject(s);
 
 	scene_->BalanceTree();
@@ -769,7 +723,7 @@ void Test::LoadTestScene3()
 
 	Material* red = new LambertianMaterial(Color(.65, .05, .05));
 	Material* green = new LambertianMaterial(Color(.12, .45, .15));
-	Material* white = new LambertianMaterial(Color(.73, .73, .73));
+	Material* grey = new LambertianMaterial(Color(.73, .73, .73));
 	Material* metal = new MetalMaterial(Color(1, 1, 1), 0);
 	Material* dielectric = new DielectricMaterial(1.5);
 
@@ -780,37 +734,44 @@ void Test::LoadTestScene3()
 	Transform t2;
 	//right wall
 	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* p = new Polygon(pts, t2, green);
+	Polygon* ps = new Polygon(pts);
+	ShapeObject* p = new ShapeObject(ps, t2, green);
 	scene_->AddObject(p);
 
 	//left wall
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	p = new Polygon(pts, t2, red);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, red);
 	scene_->AddObject(p);
 
 	//ceiling
 	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, grey);
 	scene_->AddObject(p);
 
 	//floor
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, grey);
 	scene_->AddObject(p);
 
 	//back wall
 	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, grey);
 	scene_->AddObject(p);
 
 	Transform t;
 	t.SetTranslate(365, 80, -165);
-	Sphere* s = new Sphere(80, t, dielectric);
-	scene_->AddObject(s);
+	Sphere* ss = new Sphere(80);
+	IObject* so = new ShapeObject(ss, t, dielectric);
+	scene_->AddObject(so);
 
 	t.SetTranslate(130, 120, -395);
-	s = new Sphere(120, t, metal);
-	scene_->AddObject(s);
+	ss = new Sphere(120);
+	so = new ShapeObject(ss, t, metal);
+	scene_->AddObject(so);
 
 	scene_->BalanceTree();
 }
@@ -840,39 +801,45 @@ void Test::LoadTestScene4()
 	double lightPower = 3000000;
 
 	Transform t1;
-	std::pair<std::unique_ptr<Light>, std::unique_ptr<Object>> lightPair = CreateRectangleAreaLight(Vector3(220, 550, -287), Vector3(220, 550, -437), Vector3(370, 550, -287), Color(lightPower, lightPower, lightPower), Color(10, 10, 10), t1, lightMaterial);
+	std::pair<std::unique_ptr<Light>, std::unique_ptr<IObject>> lightPair = CreateRectangleAreaLight(Vector3(220, 550, -287), Vector3(220, 550, -437), Vector3(370, 550, -287), Color(lightPower, lightPower, lightPower), Color(10, 10, 10), t1, lightMaterial);
 	scene_->AddLight(std::move(lightPair.first));
 	scene_->AddObject(std::move(lightPair.second));
 
 	Transform t2;
 	//right wall
 	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555)  });
-	Polygon* p = new Polygon(pts, t2, green);
+	Polygon* ps = new Polygon(pts);
+	ShapeObject* p = new ShapeObject(ps, t2, green);
 	scene_->AddObject(p);
 
 	//left wall
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	p = new Polygon(pts, t2, red);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, red);
 	scene_->AddObject(p);
 
 	//ceiling
 	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//floor
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//back wall
 	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	Transform t;
 	t.SetTranslate(365, 80, -165);
-	Sphere* s = new Sphere(80, t, dielectric);
+	Sphere* s1 = new Sphere(80);
+	ShapeObject* s = new ShapeObject(s1, t, dielectric);
 	scene_->AddObject(s);
 
 	scene_->BalanceTree();
@@ -904,39 +871,45 @@ void Test::LoadTestScene5()
 	double lightPower = 3000000;
 
 	Transform t1;
-	std::pair<std::unique_ptr<Light>, std::unique_ptr<Object>> lightPair = CreateRectangleAreaLight(Vector3(220, 550, -287), Vector3(220, 550, -437), Vector3(370, 550, -287), Color(lightPower, lightPower, lightPower), Color(10, 10, 10), t1, lightMaterial);
+	std::pair<std::unique_ptr<Light>, std::unique_ptr<IObject>> lightPair = CreateRectangleAreaLight(Vector3(220, 550, -287), Vector3(220, 550, -437), Vector3(370, 550, -287), Color(lightPower, lightPower, lightPower), Color(10, 10, 10), t1, lightMaterial);
 	scene_->AddLight(std::move(lightPair.first));
 	scene_->AddObject(std::move(lightPair.second));
 
 	Transform t2;
 	//right wall
 	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* p = new Polygon(pts, t2, green);
+	Polygon* ps = new Polygon(pts);
+	ShapeObject* p = new ShapeObject(ps, t2, green);
 	scene_->AddObject(p);
 
 	//left wall
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	p = new Polygon(pts, t2, red);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, red);
 	scene_->AddObject(p);
 
 	//ceiling
 	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//floor
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//back wall
 	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	Transform t;
 	t.SetTranslate(365, 80, -165);
-	Sphere* s = new Sphere(80, t, dielectric);
+	Sphere* ss = new Sphere(80);
+	ShapeObject* s = new ShapeObject(ss, t, dielectric);
 	scene_->AddObject(s);
 
 	scene_->BalanceTree();
@@ -979,61 +952,72 @@ void Test::LoadTestScene6()
 	Transform t2;
 	//right wall
 	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* p = new Polygon(pts, t2, green);
+	Polygon* ps = new Polygon(pts);
+	ShapeObject* p = new ShapeObject(ps, t2, green);
 	scene_->AddObject(p);
 
 	//left wall
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	p = new Polygon(pts, t2, red);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, red);
 	scene_->AddObject(p);
 
 	//ceiling
 	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//floor
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//back wall
 	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	Transform t;
 	t.SetTranslate(365, 80, -165);
-	Sphere* s = new Sphere(80, t, glass);
+
+	Sphere* ss = new Sphere(80);
+	ShapeObject* s = new ShapeObject(ss, t, glass);
 	scene_->AddObject(s);
 
 
 	t.SetTranslate(130, 120, -395);
-	s = new Sphere(120, t, metal);
+	ss = new Sphere(120);
+	s = new ShapeObject(ss, t, metal);
 	scene_->AddObject(s);
 
 	t.SetTranslate(120, 0, -170);
-	Cylinder* c = new Cylinder(40, 90, t, glass);
+	Cylinder* co = new Cylinder(40, 90);
+	ShapeObject* c = new ShapeObject(co, t, glass);
+
 	scene_->AddObject(c);
 
 	t.SetTranslate(230, 10, -220);
-	Cylinder* w = new Cylinder(37, 90, t, water);
+	Cylinder* wo = new Cylinder(37, 90);
+	ShapeObject* w = new ShapeObject(wo, t, water);
 	//scene_->AddObject(w);
 
 	t.SetTranslate(230, 0, -220);
-	Cylinder* c1 = new Cylinder(40, 160, t, glass);
-	Cylinder* c2 = new Cylinder(37, 160, t, glass);
-	CSGNode* p1 = new CSGNode(c1);
-	CSGNode* p2 = new CSGNode(c2);
+	Cylinder* c1 = new Cylinder(40, 160);
+	Cylinder* c2 = new Cylinder(37, 160);
+	CSGNode* p1 = new CSGNode(c1, t);
+	CSGNode* p2 = new CSGNode(c2, t);
 	CSGNode* d = new CSGNode(p1, p2, CSGOperationType::Difference);
 
 	t.SetTranslate(0, 0, 0);
-	CSGObject* object = new CSGObject(d, t, glass);
-	scene_->AddObject(object);	
+	CSGShape* csg = new CSGShape(d);
+	ShapeObject* object = new ShapeObject(csg, t, glass);
+	scene_->AddObject(object);
 
 	scene_->BalanceTree();
 }
-
 
 // cornell box with an empty glass
 void Test::LoadTestScene7()
@@ -1068,48 +1052,55 @@ void Test::LoadTestScene7()
 	Transform t2;
 	//right wall
 	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* p = new Polygon(pts, t2, green);
+	Polygon* ps = new Polygon(pts);
+	ShapeObject* p = new ShapeObject(ps, t2, green);
 	scene_->AddObject(p);
 
 	//left wall
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	p = new Polygon(pts, t2, red);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, red);
 	scene_->AddObject(p);
 
 	//ceiling
 	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//floor
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//back wall
 	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
+
 
 	Transform t;
 	t.SetTranslate(230, 10, -220);
-	Cylinder* w = new Cylinder(37, 90, t, water);
+	Cylinder* ws = new Cylinder(37, 90);
+	ShapeObject* w = new ShapeObject(ws, t, water);
 	//scene_->AddObject(w);
 
 	t.SetTranslate(225, 0, -225);
-	Cylinder* c1 = new Cylinder(220, 160, t, glass);
-	Cylinder* c2 = new Cylinder(215, 160, t, glass);
-	CSGNode* p1 = new CSGNode(c1);
-	CSGNode* p2 = new CSGNode(c2);
+	Cylinder* c1 = new Cylinder(220, 160);
+	Cylinder* c2 = new Cylinder(215, 160);
+	CSGNode* p1 = new CSGNode(c1, t);
+	CSGNode* p2 = new CSGNode(c2, t);
 	CSGNode* d = new CSGNode(p1, p2, CSGOperationType::Difference);
 
 	t.SetTranslate(0, 0, 0);
-	CSGObject* object = new CSGObject(d, t, glass);
+	CSGShape* csg = new CSGShape(d);
+	ShapeObject* object = new ShapeObject(csg, t, glass);
 	scene_->AddObject(object);
 
 	scene_->BalanceTree();
 }
-
 
 // cornell box with a glass with water
 void Test::LoadTestScene8()
@@ -1144,43 +1135,50 @@ void Test::LoadTestScene8()
 	Transform t2;
 	//right wall
 	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* p = new Polygon(pts, t2, green);
+	Polygon* ps = new Polygon(pts);
+	ShapeObject* p = new ShapeObject(ps, t2, green);
 	scene_->AddObject(p);
 
 	//left wall
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	p = new Polygon(pts, t2, red);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, red);
 	scene_->AddObject(p);
 
 	//ceiling
 	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//floor
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//back wall
 	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	Transform t;
 	t.SetTranslate(230, 10, -220);
-	Cylinder* w = new Cylinder(37, 90, t, water);
-	//scene_->AddObject(w);
+	Cylinder* ws = new Cylinder(37, 90);
+	ShapeObject* w = new ShapeObject(ws, t, water);
+	scene_->AddObject(w);
 
 	t.SetTranslate(225, 0, -225);
-	Cylinder* c1 = new Cylinder(220, 160, t, glass);
-	Cylinder* c2 = new Cylinder(215, 160.1, t, glass);
-	CSGNode* p1 = new CSGNode(c1);
-	CSGNode* p2 = new CSGNode(c2);
+	Cylinder* c1 = new Cylinder(220, 160);
+	Cylinder* c2 = new Cylinder(215, 160.1);
+	CSGNode* p1 = new CSGNode(c1, t);
+	CSGNode* p2 = new CSGNode(c2, t);
 	CSGNode* d = new CSGNode(p1, p2, CSGOperationType::Difference);
 
 	t.SetTranslate(0, 0, 0);
-	CSGObject* object = new CSGObject(d, t, glass);
+	CSGShape* csg = new CSGShape(d);
+	ShapeObject* object = new ShapeObject(csg, t, glass);
 	scene_->AddObject(object);
 
 	scene_->BalanceTree();
@@ -1220,27 +1218,32 @@ void Test::LoadTestScene9()
 	Transform t2;
 	//right wall
 	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* p = new Polygon(pts, t2, green);
+	Polygon* ps = new Polygon(pts);
+	ShapeObject* p = new ShapeObject(ps, t2, green);
 	scene_->AddObject(p);
 
 	//left wall
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	p = new Polygon(pts, t2, red);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, red);
 	scene_->AddObject(p);
 
 	//ceiling
 	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//floor
 	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	//back wall
 	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	p = new Polygon(pts, t2, white);
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
 	scene_->AddObject(p);
 
 	Transform t;
@@ -1248,7 +1251,8 @@ void Test::LoadTestScene9()
 	t.SetScale(8, 8, 8);
 	std::ifstream in("g:/code/raytracer/scenes/grid.txt");
 	GridSignedDistanceFunction* grid = new GridSignedDistanceFunction(in);
-	SignedDistanceFunctionObject* o = new SignedDistanceFunctionObject(grid, t, water);
+	SignedDistanceFunctionShape* os = new SignedDistanceFunctionShape(grid);
+	ShapeObject* o = new ShapeObject(os, t, water);
 
 	int dim = 10;
 	double radius = 3;
@@ -1270,7 +1274,8 @@ void Test::LoadTestScene9()
 	t.SetScale(80, 80, 80);
 	//GridSignedDistanceFunction* function = new GridSignedDistanceFunction(dim, dim, dim, cells);
 	//SignedDistanceFunctionObject* o = new SignedDistanceFunctionObject(function, t, metal);
-	Sphere* s = new Sphere(.3, t, water);
+	//Sphere* ss = new Sphere(.3);
+	//ShapeObject s = new ShapeObject(ss, t, water);
 	scene_->AddObject(o);
 	//scene_->AddObject(s);
 

@@ -37,11 +37,7 @@ bool ShapeObject::Intersect(const Ray& ray, Intersection& intersection, double t
 	bool hit = shape_->Intersect(localRay, intersection, tMin, tMax);
 	if (hit)
 	{
-		Vector3 worldPoint = transform_.TransformLocalPointToWorld(intersection.point);
-		Vector3 worldNormal = transform_.TransformLocalNormalToWorld(intersection.point);
-		intersection.point = worldPoint;
-		intersection.normal = worldNormal;
-		intersection.intersectionTime = (ray.origin - worldPoint).Magnitude();
+		intersection = transform_.TransformLocalIntersectionToWorld(ray, intersection);
 	}
 	return hit;
 }
@@ -52,11 +48,7 @@ void ShapeObject::GetPoints(const Ray& ray, std::vector<Intersection>& points, d
 	shape_->GetPoints(localRay, points, tMin, tMax);
 	for (unsigned int i = 0; i < points.size(); i++)
 	{
-		Vector3 worldPoint = transform_.TransformLocalPointToWorld(points[i].point);
-		Vector3 worldNormal = transform_.TransformLocalNormalToWorld(points[i].point);
-		points[i].point = worldPoint;
-		points[i].normal = worldNormal;
-		points[i].intersectionTime = (ray.origin - worldPoint).Magnitude();
+		points[i] = transform_.TransformLocalIntersectionToWorld(ray, points[i]);
 	}
 }
 

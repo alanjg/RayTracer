@@ -22,7 +22,6 @@ public:
 
 	void LoadScene9();
 	void LoadScene10();
-	void LoadScene11();
 
 	void LoadTestScene1();
 	void LoadTestScene2();

@@ -5,14 +5,12 @@
 #include "../Ray.h"
 #include "../Transform.h"
 
-class Cylinder : public Object
+class Cylinder : public Shape
 {
 public:
-	Cylinder(double radius,double height, const Transform& transform, const Material* material);
-	bool GetIntersectionPoints(const Ray& r, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const;
-	bool Contains(const Vector3& point);
-	~Cylinder();
-
+	Cylinder(double radius, double height);
+	bool GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const;
+	
 	virtual Vector3 GetMin() const;
 	virtual Vector3 GetMax() const;
 private:

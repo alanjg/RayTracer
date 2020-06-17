@@ -22,7 +22,7 @@ namespace RayTracerTest
 			double lightPower = 3000000;
 
 			Transform t1;
-			std::pair<std::unique_ptr<Light>, std::unique_ptr<Object>> lightPair = CreateRectangleAreaLight(Vector3(220, 550, -287), Vector3(220, 550, -437), Vector3(370, 550, -287), Color(lightPower, lightPower, lightPower), Color(10, 10, 10), t1, lightMaterial);
+			std::pair<std::unique_ptr<Light>, std::unique_ptr<IObject>> lightPair = CreateRectangleAreaLight(Vector3(220, 550, -287), Vector3(220, 550, -437), Vector3(370, 550, -287), Color(lightPower, lightPower, lightPower), Color(10, 10, 10), t1, lightMaterial);
 			Ray ray;
 			ray.origin = Vector3(220, 555, 287);
 			ray.direction = Vector3(0, -1, 0);

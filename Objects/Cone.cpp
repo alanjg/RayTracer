@@ -1,42 +1,30 @@
 #include "pch.h"
 #include "Cone.h"
 
-Cone::Cone(double bottomRadius, double topRadius, double height, const Transform& transform, const Material* material):
-	Object(transform, material)	
+Cone::Cone(double bottomRadius, double topRadius, double height) :
+	bottomRadius_(bottomRadius), topRadius_(topRadius), height_(height)
 {
-	bottomRadius_ = bottomRadius;
-	topRadius_ = topRadius;
-	height_ = height;
-}
-
-Cone::~Cone()
-{
-
 }
 
 bool Cone::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const
 {
-	firstIntersection.intersectionTime = tMax;
+	firstIntersection.distance = tMax;
 	//solve for top & bottom
-	Ray localRay = transform_.TransformWorldToLocal(ray);
-	if (localRay.direction[1] != 0)
+	if (ray.direction[1] != 0)
 	{
-		double top = (height_ - localRay.origin[1])/localRay.direction[1];
-		double bottom = -localRay.origin[1]/localRay.direction[1];
-		
+		double top = (height_ - ray.origin[1]) / ray.direction[1];
+		double bottom = -ray.origin[1] / ray.direction[1];
+
 		if (top > 0.0)
 		{
-			Ray result;
-			result.origin = localRay.origin + top * localRay.direction;
-			result.direction = Vector3(0,1,0);
-			if (result.origin[0] * result.origin[0] + result.origin[2] * result.origin[2] <= topRadius_ * topRadius_ && top > tMin && top < tMax)
+			Vector3 point = ray.origin + top * ray.direction;
+			if (point[0] * point[0] + point[2] * point[2] <= topRadius_ * topRadius_ && top > tMin && top < tMax)
 			{
-				result = transform_.TransformLocalToWorld(result);
 				Intersection intersection;
-				intersection.point = result.origin;
-				intersection.normal = result.direction;
-				intersection.intersectionTime = top;
-				if (localRay.direction[1] > 0)
+				intersection.point = point;
+				intersection.normal.Set(0, 1, 0);
+				intersection.distance = top;
+				if (ray.direction[1] > 0)
 				{
 					intersection.internalIntersection = true;
 				}
@@ -50,19 +38,16 @@ bool Cone::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& inte
 				}
 			}
 		}
-		if (bottom > 0.0 && (!firstPointOnly || bottom < firstIntersection.intersectionTime))
+		if (bottom > 0.0 && (!firstPointOnly || bottom < firstIntersection.distance))
 		{
-			Ray result;
-			result.origin = localRay.origin + bottom * localRay.direction;
-			result.direction = Vector3(0,-1,0);
-			if (result.origin[0] * result.origin[0] + result.origin[2] * result.origin[2] <= bottomRadius_ * bottomRadius_ && bottom > tMin && bottom < tMax)
+			Vector3 point = ray.origin + bottom * ray.direction;
+			if (point[0] * point[0] + point[2] * point[2] <= bottomRadius_ * bottomRadius_ && bottom > tMin && bottom < tMax)
 			{
-				result = transform_.TransformLocalToWorld(result);
 				Intersection intersection;
-				intersection.point = result.origin;
-				intersection.normal = result.direction;
-				intersection.intersectionTime = bottom;
-				if (localRay.direction[1] < 0)
+				intersection.point = point;
+				intersection.normal.Set(0, -1, 0);
+				intersection.distance = bottom;
+				if (ray.direction[1] < 0)
 				{
 					intersection.internalIntersection = true;
 				}
@@ -78,72 +63,70 @@ bool Cone::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& inte
 		}
 	}
 
-//cone
-//x^2 + z^2 = (Rtop*(y/y_top)+Rbottom*(ytop-y)/ytop)^2
-//x = x0 + at
-//y = y0 + bt
-//z = z0 + ct
-//(x0 + at)^2 + (z0 + ct)^2 - (Rtop*(y0 + bt)/y_top + Rbottom*(y_top - y0 - bt)/ytop)^2
-//x0^2 + 2x0 * at + a^2t^2 + z0^2 + 2z0*ct + c^2t^2 - Rpart
-//D = rtop*y0/ytop
-//E = Rtop * b/ytop
-//F = Rbottom* y0 /ytop
-//G = Rbottom * b/ytop
-//Rpart = (D + Et + Rbottom - F - Gt)^2
-//H = D - F + Rbottom
-//I = E - G
-//Rpart = (H + It)^2
-//RPart = H^2 + 2HIt + I^2t^2
-//x0^2 + 2x0 * at + a^2t^2 + z0^2 + 2z0*ct + c^2t^2 - H^2 - 2HIt - I^2t^2
-//= t^2(a^2 + c^2 + I^2) + t(2x0 + 2z0 - 2HI) + 1(x0^2 + z0^2 - H^2)
-//A = a^2 + c^2 - I ^2
-//B = 2x0 + 2z0 - 2HI
-//C = x0^2 + z0^2 - H^2
-	double D = topRadius_ * localRay.origin[1] / height_;
-	double E = topRadius_ * localRay.direction[1] / height_;
-	double F = bottomRadius_ * localRay.origin[1] / height_;
-	double G = bottomRadius_ * localRay.direction[1] / height_;
+	//cone
+	//x^2 + z^2 = (Rtop*(y/y_top)+Rbottom*(ytop-y)/ytop)^2
+	//x = x0 + at
+	//y = y0 + bt
+	//z = z0 + ct
+	//(x0 + at)^2 + (z0 + ct)^2 - (Rtop*(y0 + bt)/y_top + Rbottom*(y_top - y0 - bt)/ytop)^2
+	//x0^2 + 2x0 * at + a^2t^2 + z0^2 + 2z0*ct + c^2t^2 - Rpart
+	//D = rtop*y0/ytop
+	//E = Rtop * b/ytop
+	//F = Rbottom* y0 /ytop
+	//G = Rbottom * b/ytop
+	//Rpart = (D + Et + Rbottom - F - Gt)^2
+	//H = D - F + Rbottom
+	//I = E - G
+	//Rpart = (H + It)^2
+	//RPart = H^2 + 2HIt + I^2t^2
+	//x0^2 + 2x0 * at + a^2t^2 + z0^2 + 2z0*ct + c^2t^2 - H^2 - 2HIt - I^2t^2
+	//= t^2(a^2 + c^2 + I^2) + t(2x0 + 2z0 - 2HI) + 1(x0^2 + z0^2 - H^2)
+	//A = a^2 + c^2 - I ^2
+	//B = 2x0 + 2z0 - 2HI
+	//C = x0^2 + z0^2 - H^2
+	double D = topRadius_ * ray.origin[1] / height_;
+	double E = topRadius_ * ray.direction[1] / height_;
+	double F = bottomRadius_ * ray.origin[1] / height_;
+	double G = bottomRadius_ * ray.direction[1] / height_;
 	double H = D - F + bottomRadius_;
 	double I = E - G;
-	
-	Vector3 direction = localRay.direction;
+
+	Vector3 direction = ray.direction;
 	direction[1] = 0;
-	Vector3 origin = localRay.origin;
+	Vector3 origin = ray.origin;
 	origin[1] = 0;
 	double a = direction.Dot(direction) - I * I;
-	double b = 2.0 * direction.Dot(origin) - 2 * H * I;	
+	double b = 2.0 * direction.Dot(origin) - 2 * H * I;
 	double c = origin.Dot(origin) - H * H;
-	double disc = b*b - 4*a*c;
-    
+	double disc = b * b - 4 * a * c;
+
 	if (disc < 0.0)
 	{
-		return firstIntersection.intersectionTime < tMin || intersectionPoints.size() > 0;
+		return firstIntersection.distance < tMin || intersectionPoints.size() > 0;
 	}
 
 	double angle = -(topRadius_ - bottomRadius_) / height_;
-	Vector3 normal(1,angle,0);
+	Vector3 normal(1, angle, 0);
 	normal.Normalize();
 	double incline = normal[1];
 
-    disc = sqrt(disc);
-    double t1 = (-b-disc) / (2*a);
-	if (t1 > 0.0 && (!firstPointOnly || t1 < firstIntersection.intersectionTime) && t1 > tMin && t1 < tMax)
+	disc = sqrt(disc);
+	double t1 = (-b - disc) / (2 * a);
+	if (t1 > 0.0 && (!firstPointOnly || t1 < firstIntersection.distance) && t1 > tMin && t1 < tMax)
 	{
-		Ray localResult;
-		localResult.origin = localRay.origin + t1 * localRay.direction;
-		localResult.direction = localResult.origin - Vector3(0, localResult.origin[1], 0);
-		localResult.direction.Normalize();
-		double mag = sqrt(1.0 - incline*incline);
-		localResult.direction *= mag;
-		localResult.direction[1] = incline;
-		if(localResult.origin[1] > 0 && localResult.origin[1] < height_)
+		Vector3 point = ray.origin + t1 * ray.direction;
+		Vector3 normal = point - Vector3(0, point[1], 0);
+		normal.Normalize();
+		double mag = sqrt(1.0 - incline * incline);
+		normal *= mag;
+		normal[1] = incline;
+		if (point[1] > 0 && point[1] < height_)
 		{
-			Ray worldResult = transform_.TransformLocalToWorld(localResult);
 			Intersection intersection;
-			intersection.point = worldResult.origin;
-			intersection.normal = worldResult.direction;
-			intersection.intersectionTime = t1;
-			if (localResult.direction.Dot(localRay.direction) > 0)
+			intersection.point = point;
+			intersection.normal = normal;
+			intersection.distance = t1;
+			if (normal.Dot(ray.direction) > 0)
 			{
 				intersection.internalIntersection = true;
 			}
@@ -159,26 +142,23 @@ bool Cone::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& inte
 		}
 	}
 
-    double t2 = (-b+disc) / (2*a);
-	if (t2 > 0.0 && (!firstPointOnly || t2 < firstIntersection.intersectionTime) && t2 > tMin && t2 < tMax)
+	double t2 = (-b + disc) / (2 * a);
+	if (t2 > 0.0 && (!firstPointOnly || t2 < firstIntersection.distance) && t2 > tMin && t2 < tMax)
 	{
-		Ray localResult;
-		localResult.origin = localRay.origin + t2 * localRay.direction;
-		localResult.direction = localResult.origin - Vector3(0, localResult.origin[1], 0);
-		localResult.direction.Normalize();
-		
+		Vector3 point = ray.origin + t2 * ray.direction;
+		Vector3 normal = point - Vector3(0, point[1], 0);
+		normal.Normalize();
 		double mag = sqrt(1.0 - incline);
-		localResult.direction *= mag;
-		localResult.direction[1] = incline;
+		normal *= mag;
+		normal[1] = incline;
 
-		if(localResult.origin[1] > 0 && localResult.origin[1] < height_)
+		if (point[1] > 0 && point[1] < height_)
 		{
-			Ray worldResult = transform_.TransformLocalToWorld(localResult);
 			Intersection intersection;
-			intersection.point = worldResult.origin;
-			intersection.normal = worldResult.direction;
-			intersection.intersectionTime = t2;
-			if (localResult.direction.Dot(localRay.direction) > 0) 
+			intersection.point = point;
+			intersection.normal = normal;
+			intersection.distance = t2;
+			if (normal.Dot(ray.direction) > 0)
 			{
 				intersection.internalIntersection = true;
 			}
@@ -191,60 +171,18 @@ bool Cone::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& inte
 			{
 				intersectionPoints.push_back(intersection);
 			}
-			
+
 		}
 	}
-	return firstIntersection.intersectionTime < tMin || intersectionPoints.size() > 0;
-}
-
-bool Cone::Contains(const Vector3& point)
-{
-	Vector3 localPoint = transform_.TransformWorldPointToLocal(point);
-	if(localPoint[1] < 0.0 || localPoint[1] > height_)
-		return false;
-	double radius = bottomRadius_ + (topRadius_ - bottomRadius_) * localPoint[1] / height_;
-	localPoint[1] = 0.0;
-	return localPoint.Magnitude() <= radius + INTERSECTION_ADJUSTMENT;
+	return firstIntersection.distance < tMin || intersectionPoints.size() > 0;
 }
 
 Vector3 Cone::GetMin() const
 {
-	Vector3 box[8];
-	box[0] = Vector3(-bottomRadius_,0,-bottomRadius_);
-	box[1] = Vector3(bottomRadius_,0,-bottomRadius_);
-	box[2] = Vector3(-bottomRadius_,0,bottomRadius_);
-	box[3] = Vector3(bottomRadius_,0,bottomRadius_);
-	box[4] = Vector3(-topRadius_,height_,-topRadius_);
-	box[5] = Vector3(topRadius_,height_,-topRadius_);
-	box[6] = Vector3(-topRadius_,height_,topRadius_);
-	box[7] = Vector3(topRadius_,height_,topRadius_);
-
-	for(int i=0;i<8;i++)
-		box[i] = transform_.TransformLocalPointToWorld(box[i]);
-	
-	Vector3 vmin = box[0];
-	for(int i=1;i<8;i++)
-		vmin = VMin(vmin,box[i]);
-	return vmin;
+	return Vector3(std::min(-bottomRadius_, -topRadius_), 0, std::min(-bottomRadius_, -topRadius_));
 }
 
 Vector3 Cone::GetMax() const
 {
-	Vector3 box[8];
-	box[0] = Vector3(-bottomRadius_,0,-bottomRadius_);
-	box[1] = Vector3(bottomRadius_,0,-bottomRadius_);
-	box[2] = Vector3(-bottomRadius_,0,bottomRadius_);
-	box[3] = Vector3(bottomRadius_,0,bottomRadius_);
-	box[4] = Vector3(-topRadius_,height_,-topRadius_);
-	box[5] = Vector3(topRadius_,height_,-topRadius_);
-	box[6] = Vector3(-topRadius_,height_,topRadius_);
-	box[7] = Vector3(topRadius_,height_,topRadius_);
-
-	for(int i=0;i<8;i++)
-		box[i] = transform_.TransformLocalPointToWorld(box[i]);
-	
-	Vector3 vmax = box[0];
-	for(int i=1;i<8;i++)
-		vmax = VMax(vmax,box[i]);
-	return vmax;
+	return Vector3(std::max(bottomRadius_, topRadius_), height_, std::max(bottomRadius_, topRadius_));
 }

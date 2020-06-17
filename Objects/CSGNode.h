@@ -26,18 +26,16 @@ void MergeCSGSegments(const Ray& incidentRay, const std::vector<Intersection>& l
 class CSGNode
 {
 public:
-	CSGNode(CSGNode* left, CSGNode* right);
-	CSGNode(IObject* child);
+	CSGNode(const Shape* child, Transform transform);
 	CSGNode(CSGNode* left, CSGNode* right, CSGOperationType operation);
-	virtual void GetPoints(const Ray& ray, std::vector<Intersection>& points, double tMin, double tMax) const;
-	void GetPointsEx(const Ray& ray, std::vector<Intersection>& points, double tMin, double tMax) const;
-	virtual bool Contains(const Vector3& point);
+	void GetPoints(const Ray& ray, std::vector<Intersection>& points, double tMin, double tMax) const;
 
-	virtual Vector3 GetMin() const;
-	virtual Vector3 GetMax() const;
-	virtual ~CSGNode() {};
+	Vector3 GetMin() const;
+	Vector3 GetMax() const;
+	~CSGNode() {};
 protected:
 	CSGNode *left_, *right_;
-	IObject* child_;
+	const Shape* child_;
+	Transform transform_;
 	CSGOperationType operation_;
 };

@@ -48,7 +48,8 @@ namespace RayTracerTest
 			std::string f(functionDefinition);
 			std::stringstream in(f);
 			GridSignedDistanceFunction* function = new GridSignedDistanceFunction(in);
-			SignedDistanceFunctionObject* object = new SignedDistanceFunctionObject(function, t, nullptr);
+			SignedDistanceFunctionShape* shape = new SignedDistanceFunctionShape(function);
+			ShapeObject* object = new ShapeObject(shape, t, nullptr);
 			rt.GetScene()->AddObject(object);
 			rt.GetScene()->BalanceTree();
 
@@ -59,7 +60,7 @@ namespace RayTracerTest
 			Assert::IsFalse(intersection.internalIntersection);
 			AssertAreEqual(Vector3(3, 2, 2), intersection.point, 1e-6);
 			AssertAreEqual(Vector3(-1, 0, 0), intersection.normal, 1e-6);
-			Assert::AreEqual(8, intersection.intersectionTime, 1e-6);
+			Assert::AreEqual(8, intersection.distance, 1e-6);
 
 			Assert::IsTrue(intersection.hitObject == object);
 		}
@@ -74,7 +75,8 @@ namespace RayTracerTest
 			Transform t;
 			t.SetTranslate(0, 0, 0);
 			GridSignedDistanceFunction* function = MakeSphere(dim, radius);
-			SignedDistanceFunctionObject* object = new SignedDistanceFunctionObject(function, t, nullptr);
+			SignedDistanceFunctionShape* shape = new SignedDistanceFunctionShape(function);
+			ShapeObject* object = new ShapeObject(shape, t, nullptr);
 			rt.GetScene()->AddObject(object);
 			rt.GetScene()->BalanceTree();
 
@@ -84,7 +86,7 @@ namespace RayTracerTest
 			Intersection intersection = rt.IntersectWithScene(ray);
 			Assert::IsFalse(intersection.internalIntersection);
 			AssertAreEqual(center - Vector3(radius, 0, 0), intersection.point, 1e-6);
-			Assert::AreEqual(10 - radius, intersection.intersectionTime, 1e-6);
+			Assert::AreEqual(10 - radius, intersection.distance, 1e-6);
 
 			Assert::IsTrue(intersection.hitObject == object);
 		}
@@ -101,7 +103,8 @@ namespace RayTracerTest
 			t.SetTranslate(10, 20, 30);
 			t.SetScale(10, 10, 10);
 			GridSignedDistanceFunction* function = MakeSphere(dim, radius);
-			SignedDistanceFunctionObject* object = new SignedDistanceFunctionObject(function, t, nullptr);
+			SignedDistanceFunctionShape* shape = new SignedDistanceFunctionShape(function);
+			ShapeObject* object = new ShapeObject(shape, t, nullptr);
 			rt.GetScene()->AddObject(object);
 			rt.GetScene()->BalanceTree();
 
@@ -113,7 +116,7 @@ namespace RayTracerTest
 			Assert::IsFalse(intersection.internalIntersection);
 			Vector3 expectedIntersectionPoint = center - Vector3(radius * 10, 0, 0);
 			AssertAreEqual(expectedIntersectionPoint, intersection.point, 1e-5);
-			Assert::AreEqual(100 - radius*10, intersection.intersectionTime, 1e-5);
+			Assert::AreEqual(100 - radius*10, intersection.distance, 1e-5);
 
 			Assert::IsTrue(intersection.hitObject == object);
 		}
@@ -129,7 +132,8 @@ namespace RayTracerTest
 			Transform t;
 			t.SetTranslate(0, 0, 0);
 			GridSignedDistanceFunction* function = MakeSphere(dim, radius);
-			SignedDistanceFunctionObject* object = new SignedDistanceFunctionObject(function, t, nullptr);
+			SignedDistanceFunctionShape* shape = new SignedDistanceFunctionShape(function);
+			ShapeObject* object = new ShapeObject(shape, t, nullptr);
 			rt.GetScene()->AddObject(object);
 			rt.GetScene()->BalanceTree();
 
@@ -139,7 +143,7 @@ namespace RayTracerTest
 			Intersection intersection = rt.IntersectWithScene(ray);
 			Assert::IsFalse(intersection.internalIntersection);
 			AssertAreEqual(center - Vector3(radius, 0, 0), intersection.point, 1e-6);
-			Assert::AreEqual(10 - radius, intersection.intersectionTime, 1e-6);
+			Assert::AreEqual(10 - radius, intersection.distance, 1e-6);
 
 			Assert::IsTrue(intersection.hitObject == object);
 
@@ -149,8 +153,7 @@ namespace RayTracerTest
 			Intersection intersection2 = rt.IntersectWithScene(ray2);
 			Assert::IsTrue(intersection2.internalIntersection);
 			AssertAreEqual(center + Vector3(radius, 0, 0), intersection2.point, 1e-6);
-			Assert::AreEqual(2 * radius, intersection2.intersectionTime, 1e-6);
-
+			Assert::AreEqual(2 * radius, intersection2.distance, 1e-6);
 		}
 	};
 }

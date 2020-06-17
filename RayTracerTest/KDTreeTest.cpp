@@ -13,7 +13,6 @@ namespace RayTracerTest
 
 		TEST_METHOD(TestHeapManipulation)
 		{
-
 			std::vector<Photon> photons;
 			Photon p;
 			p.position = Vector3(10, 0, 0);

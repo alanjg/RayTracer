@@ -5,14 +5,12 @@
 #include "../Ray.h"
 #include "../Transform.h"
 
-class Ellipsoid : public Object
+class Ellipsoid : public Shape
 {
 public:
-	Ellipsoid(const Vector3& radii, const Transform& transform, const Material* material);
-	bool GetIntersectionPoints(const Ray& r, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const;
-	bool Contains(const Vector3& point);
-	~Ellipsoid();
-
+	Ellipsoid(const Vector3& radii);
+	bool GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const;
+	
 	virtual Vector3 GetMin() const;
 	virtual Vector3 GetMax() const;
 private:

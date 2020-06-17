@@ -1,4 +1,4 @@
 #pragma once
 #include "Object.h"
 
-Object* MakeObject(std::istream& in);
+IObject* MakeObject(std::istream& in);

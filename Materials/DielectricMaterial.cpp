@@ -8,8 +8,6 @@ DielectricMaterial::DielectricMaterial(double ri) :
 
 bool DielectricMaterial::Scatter(const Intersection& intersection, ScatterType scatterType, ScatterResult& result) const
 {
-	
-
 	result.Attenuation = Color(1, 1, 1);
 	double niOverNt;
 	

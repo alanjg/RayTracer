@@ -9,15 +9,14 @@
 class VolumetricConstantMedium : public Object
 {
 public:
-	VolumetricConstantMedium(Object* boundary, double density, const Transform& transform, Texture* albedo);
+	VolumetricConstantMedium(Shape* boundary, double density, const Transform& transform, Texture* albedo);
 	bool GetIntersectionPoints(const Ray& r, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const;
-	bool Contains(const Vector3& point);
 	~VolumetricConstantMedium();
 
 	virtual Vector3 GetMin() const;
 	virtual Vector3 GetMax() const;
 
 private:
-	Object* boundary_;
+	Shape* boundary_;
 	double density_;
 };

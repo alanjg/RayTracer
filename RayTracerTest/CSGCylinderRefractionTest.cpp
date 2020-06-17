@@ -22,14 +22,15 @@ namespace RayTracerTest
 			Material* glass = new DielectricMaterial(1.5);
 			Transform t;
 			t.SetTranslate(0, 0, 10);
-			Cylinder* c1 = new Cylinder(5, 5, t, glass);
-			Cylinder* c2 = new Cylinder(4.7, 2.5, t, glass);
-			CSGNode* p1 = new CSGNode(c1);
-			CSGNode* p2 = new CSGNode(c2);
+			Cylinder* c1 = new Cylinder(5, 5);
+			Cylinder* c2 = new Cylinder(4.7, 2.5);
+			CSGNode* p1 = new CSGNode(c1, t);
+			CSGNode* p2 = new CSGNode(c2, t);
 			CSGNode* d = new CSGNode(p1, p2, CSGOperationType::Difference);
 
 			t.SetTranslate(0, 0, 0);
-			CSGObject* object = new CSGObject(d, t, glass);
+			CSGShape* csg = new CSGShape(d);
+			ShapeObject* object = new ShapeObject(csg, t, glass);
 			rt.GetScene()->AddObject(object);
 			rt.GetScene()->BalanceTree();
 			Ray ray;
@@ -39,7 +40,7 @@ namespace RayTracerTest
 			Assert::IsFalse(intersection.internalIntersection);
 			AssertAreEqual(Vector3(0, 1, 5), intersection.point, 1e-6);
 			AssertAreEqual(Vector3(0, 0, -1), intersection.normal, 1e-6);
-			Assert::AreEqual(5, intersection.intersectionTime, 1e-6);
+			Assert::AreEqual(5, intersection.distance, 1e-6);
 
 			Assert::IsTrue(intersection.hitObject == object);
 			ScatterResult scatterResult;
@@ -53,7 +54,7 @@ namespace RayTracerTest
 			AssertAreEqual(Vector3(0, 1, 5.3), intersection2.point, 1e-6);
 			AssertAreEqual(Vector3(0, 0, -1), intersection2.normal, 1e-6);
 			Assert::IsTrue(intersection2.internalIntersection);
-			Assert::AreEqual(0.3, intersection2.intersectionTime, 1e-6);
+			Assert::AreEqual(0.3, intersection2.distance, 1e-6);
 
 			Assert::IsTrue(intersection2.hitObject == object);
 
@@ -69,7 +70,7 @@ namespace RayTracerTest
 			AssertAreEqual(Vector3(0, 1, 14.7), intersection3.point, 1e-6);
 			AssertAreEqual(Vector3(0, 0, -1), intersection3.normal, 1e-6);
 			Assert::IsFalse(intersection3.internalIntersection);
-			Assert::AreEqual(14.7 - 5.3, intersection3.intersectionTime, 1e-6);
+			Assert::AreEqual(14.7 - 5.3, intersection3.distance, 1e-6);
 
 			Assert::IsTrue(intersection3.hitObject == object);
 			ScatterResult scatterResult3;
@@ -84,7 +85,7 @@ namespace RayTracerTest
 			AssertAreEqual(Vector3(0, 1, 15), intersection4.point, 1e-6);
 			AssertAreEqual(Vector3(0, 0, -1), intersection4.normal, 1e-6);
 			Assert::IsTrue(intersection4.internalIntersection);
-			Assert::AreEqual(0.3, intersection4.intersectionTime, 1e-6);
+			Assert::AreEqual(0.3, intersection4.distance, 1e-6);
 
 			Assert::IsTrue(intersection4.hitObject == object);
 

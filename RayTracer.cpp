@@ -56,8 +56,7 @@ void RayThread(ThreadData data)
 			if (newPercent > oldPercent)
 			{
 				std::cout << newPercent << "% " << std::endl;
-			}
-			
+			}			
 		}
 		else
 		{
@@ -68,7 +67,6 @@ void RayThread(ThreadData data)
 		if (hasMoreData)
 		{
 			data.rt->RenderTile(data.pixels, tile);
-
 		}		
 	}
 }
@@ -96,9 +94,6 @@ void RayTracer::RenderTile(double* pixels, const Tile& tile)
 	Vector3 right = dir.Cross(camera.up);
 	right.Normalize();
 
-	Ray ray;
-	ray.origin = camera.position;
-
 	camera.SetViewport(width, height);
 	float maxIntensity = 1.0;
 
@@ -110,8 +105,17 @@ void RayTracer::RenderTile(double* pixels, const Tile& tile)
 			Color color(0, 0, 0);
 			for (int i = 0; i < global_options.num_samples; i++)
 			{
-				Ray fray = camera.CreateRandomRay(x, y);
-				Color sample = SampleScene(fray);
+				Ray ray;
+				if (global_options.num_samples == 1)
+				{
+					// Don't jitter if only taking one sample
+					ray = camera.CreateRay(x, y);
+				}
+				else
+				{
+					ray = camera.CreateRandomRay(x, y);
+				}
+				Color sample = SampleScene(ray);
 				if (!isnan(sample.r) && !isnan(sample.g) && !isnan(sample.b))
 				{
 					if (sample.r > 1 || sample.g > 1 || sample.b > 1)
@@ -219,7 +223,7 @@ Intersection RayTracer::IntersectWithScene(const Ray& ray) const
 		Intersection intersection;
 		if (Objects_[i]->Intersect(ray, intersection))
 		{
-			if (bestObject == nullptr || intersection.intersectionTime < bestIntersection.intersectionTime)
+			if (bestObject == nullptr || intersection.distance < bestIntersection.distance)
 			{
 				bestObject = Objects_[i];
 				bestIntersection = intersection;

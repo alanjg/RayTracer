@@ -20,6 +20,6 @@ bool BVHNode::Intersect(const Ray& ray, Intersection& intersection, double tMin,
 	}
 
 	bool hitLeft = left->Intersect(ray, intersection, tMin, tMax);
-	bool hitRight = right->Intersect(ray, intersection, tMin, hitLeft ? intersection.intersectionTime : tMax);
+	bool hitRight = right->Intersect(ray, intersection, tMin, hitLeft ? intersection.distance : tMax);
 	return hitLeft || hitRight;
 }

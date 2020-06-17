@@ -53,7 +53,7 @@ bool PointLight::IsOccluded(const Intersection& surfaceIntersection, const Inter
 	else
 	{
 		double distToLight = (position_ - surfaceIntersection.point).Magnitude();
-		if (GreaterThan(distToLight, shadowRayIntersection.intersectionTime))
+		if (GreaterThan(distToLight, shadowRayIntersection.distance))
 		{
 			// We hit something closer than the light point
 			return true;
@@ -97,17 +97,17 @@ std::unique_ptr<Pdf> RectangleAreaLight::GetLightPdf() const
 */
 
 
-AreaLight::AreaLight(const Color& power, Object* object)
+AreaLight::AreaLight(const Color& power, IObject* object)
 	:Light(power), lightObject_(object)
 {
 }
 
-Object* AreaLight::GetLightObject() const
+IObject* AreaLight::GetLightObject() const
 {
 	return lightObject_;
 }
 
-std::pair<std::unique_ptr<RectangleAreaLight>, std::unique_ptr<Object>> CreateRectangleAreaLight(const Vector3& ll, const Vector3& lr, const Vector3& ul, const Color& power, const Color& emittance, const Transform& transform, const Material* material)
+std::pair<std::unique_ptr<RectangleAreaLight>, std::unique_ptr<IObject>> CreateRectangleAreaLight(const Vector3& ll, const Vector3& lr, const Vector3& ul, const Color& power, const Color& emittance, const Transform& transform, const Material* material)
 {
 	std::vector<Vector3> points;
 	points.push_back(ll);
@@ -115,12 +115,13 @@ std::pair<std::unique_ptr<RectangleAreaLight>, std::unique_ptr<Object>> CreateRe
 	points.push_back(lr + ul - ll);
 	points.push_back(ul);
 	
-	Object* rectangle = new Polygon(points, transform, material);
+	Polygon* poly = new Polygon(points);
+	ShapeObject* rectangle = new ShapeObject(poly, transform, material);
 	RectangleAreaLight* light = new RectangleAreaLight(rectangle, ll, lr, ul, power, emittance);
-	return std::make_pair(std::unique_ptr<RectangleAreaLight>(light), std::unique_ptr<Object>(rectangle));
+	return std::make_pair(std::unique_ptr<RectangleAreaLight>(light), std::unique_ptr<IObject>(rectangle));
 }
 
-RectangleAreaLight::RectangleAreaLight(Object* lightObject, const Vector3& ll, const Vector3& lr, const Vector3& ul, const Color& power, const Color& emittance) :
+RectangleAreaLight::RectangleAreaLight(IObject* lightObject, const Vector3& ll, const Vector3& lr, const Vector3& ul, const Color& power, const Color& emittance) :
 	AreaLight(power, lightObject), rmin_(ll), rdu_(lr - ll), rdv_(ul - ll), emittance_(emittance)
 {
 	normal_ = rdu_.Cross(rdv_);

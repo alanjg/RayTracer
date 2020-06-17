@@ -2,21 +2,24 @@
 #include "CSGObject.h"
 #include "CSGNode.h"
 
-CSGObject::CSGObject(CSGNode* tree, const Transform& transform, const Material* material): 
-	Object(transform, material), tree_(tree)
-{
-	
-}
-
-//bool CSGObject::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly)
+//CSGObject::CSGObject(CSGNode* tree, const Transform& transform, const Material* material): 
+//	Object(transform, material), tree_(tree)
 //{
+//	
+//}
+//
+//bool CSGObject::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const
+//{
+//	
 //	if (firstPointOnly)
 //	{
 //		std::vector<Intersection> points;
 //		tree_->GetPoints(ray, points, tMin, tMax);
 //
 //		if (points.empty())
+//		{
 //			return false;
+//		}
 //
 //		firstIntersection = *std::min_element(points.begin(), points.end());
 //		return true;
@@ -27,14 +30,30 @@ CSGObject::CSGObject(CSGNode* tree, const Transform& transform, const Material* 
 //		return intersectionPoints.size() > 0;
 //	}
 //}
+//
+//Vector3 CSGObject::GetMin() const
+//{
+//	return tree_->GetMin();
+//}
+//
+//Vector3 CSGObject::GetMax() const
+//{
+//	return tree_->GetMax();
+//}
 
-bool CSGObject::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const
+CSGShape::CSGShape(CSGNode* tree) :
+	tree_(tree)
 {
-	
+
+}
+
+bool CSGShape::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const
+{
+
 	if (firstPointOnly)
 	{
 		std::vector<Intersection> points;
-		tree_->GetPointsEx(ray, points, tMin, tMax);
+		tree_->GetPoints(ray, points, tMin, tMax);
 
 		if (points.empty())
 		{
@@ -51,17 +70,12 @@ bool CSGObject::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>&
 	}
 }
 
-bool CSGObject::Contains(const Vector3& point)
-{
-	return tree_->Contains(point);
-}
-
-Vector3 CSGObject::GetMin() const
+Vector3 CSGShape::GetMin() const
 {
 	return tree_->GetMin();
 }
 
-Vector3 CSGObject::GetMax() const
+Vector3 CSGShape::GetMax() const
 {
 	return tree_->GetMax();
 }

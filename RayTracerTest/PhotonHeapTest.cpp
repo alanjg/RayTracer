@@ -12,7 +12,6 @@ namespace RayTracerTest
 
 		TEST_METHOD(TestHeapManipulation)
 		{
-
 			Vector3 position(10, 0, 0);
 			KDTree::PhotonComparer comparer(position);
 			NHeap<Photon, KDTree::PhotonComparer> heap(2, comparer);

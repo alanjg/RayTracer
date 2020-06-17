@@ -7,28 +7,11 @@
 #include "../Transform.h"
 #include "../Vector.h"
 
-class Sphere : public Object
+class Sphere : public Shape
 {
 public:
-	Sphere(double radius, const Transform& transform, const Material* material);
-
-	bool GetIntersectionPoints(const Ray& r, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const;
-	bool Contains(const Vector3& point);
-	~Sphere();
-
-	virtual Vector3 GetMin() const;
-	virtual Vector3 GetMax() const;
-private:
-	double radius_;
-	Vector3 vmin_, vmax_;
-};
-
-class SphereShape : public Shape
-{
-public:
-	SphereShape(double radius);
+	Sphere(double radius);
 	
-
 	virtual Vector3 GetMin() const;
 	virtual Vector3 GetMax() const;
 

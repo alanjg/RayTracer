@@ -15,10 +15,6 @@ public:
 	virtual ~ISignedDistanceFunction() = 0;
 };
 
-inline ISignedDistanceFunction::~ISignedDistanceFunction()
-{
-}
-
 class GridSignedDistanceFunction : public ISignedDistanceFunction
 {
 private:
@@ -38,22 +34,22 @@ public:
 	virtual Vector3 GetMax() const;
 };
 
-class SignedDistanceFunctionObject : public Object
+class SignedDistanceFunctionShape : public Shape
 {
 	Polygon* polygons[6];
 public:
-	SignedDistanceFunctionObject(ISignedDistanceFunction* function, const Transform& transform, const Material* material);
-		
+	SignedDistanceFunctionShape(ISignedDistanceFunction* function);
+
 	bool GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const;
-	bool Contains(const Vector3& point);
-	virtual ~SignedDistanceFunctionObject();
+	
+	virtual ~SignedDistanceFunctionShape();
 
 	virtual Vector3 GetMin() const;
 	virtual Vector3 GetMax() const;
 
 protected:
 	ISignedDistanceFunction* function_;
-		
-	void gradient(double x, double y, double z, double& gx, double& gy, double& gz) const;
+
+	Vector3 Gradient(Vector3 position) const;
 };
 

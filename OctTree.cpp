@@ -43,7 +43,7 @@ bool OctLeafNode::Intersect(const Ray& ray, Intersection& bestIntersection, doub
 		Intersection intersection;
 		if (objects_[*it]->Intersect(ray, intersection, tMin, tMax))
 		{
-			if (bestIndex == -1 || intersection.intersectionTime < bestIntersection.intersectionTime)
+			if (bestIndex == -1 || intersection.distance < bestIntersection.distance)
 			{
 				if (contains(vmin_, vmax_, intersection.point, EPSILON))
 				{					
@@ -58,7 +58,7 @@ bool OctLeafNode::Intersect(const Ray& ray, Intersection& bestIntersection, doub
 }
 
 OctInternalNode::OctInternalNode(const Vector3& vmin, const Vector3& vmax, const std::list<int>& objectIds, const std::vector<std::unique_ptr<IObject>>& objects) :
-	OctNode(vmin, vmax, objects), children_{nullptr,nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}
+	OctNode(vmin, vmax, objects), children_{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}
 {
 	int x[] = { 0,0,0,0,1,1,1,1 };
 	int y[] = { 0,0,1,1,0,0,1,1 };

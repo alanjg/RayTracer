@@ -3,7 +3,7 @@
 
 bool Intersection::operator<(const Intersection& rhs) const
 {
-	return intersectionTime < rhs.intersectionTime;
+	return distance < rhs.distance;
 }
 
 Intersection::Intersection()
@@ -13,7 +13,7 @@ Intersection::Intersection()
 	hitObject = nullptr;
 	u = 0;
 	v = 0;
-	intersectionTime = std::numeric_limits<double>::max();
+	distance = std::numeric_limits<double>::max();
 }
 
 bool IsCloserIntersection(const Intersection& currentIntersection, const Intersection& testIntersection)
@@ -21,7 +21,7 @@ bool IsCloserIntersection(const Intersection& currentIntersection, const Interse
 	// Case 1 - no source object, so 
 	if (currentIntersection.sourceObject == nullptr && testIntersection.sourceObject == nullptr)
 	{
-		if (testIntersection.intersectionTime < currentIntersection.intersectionTime)
+		if (testIntersection.distance < currentIntersection.distance)
 		{
 
 		}
