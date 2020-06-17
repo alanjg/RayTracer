@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Camera.h"
 
-
 void Camera::SetViewport(int w, int h)
 {
 	Vector3 fup = up;
@@ -33,13 +32,12 @@ void Camera::SetViewport(int w, int h)
 	height_ = h;
 }
 
-
 Ray Camera::CreateRay(int x, int y)
 {
 	Ray ray;
 	ray.origin = eyePosition_;
-	double xd = (double)x / (double)width_;
-	double yd = (double)y / (double)height_;
+	double xd = (double)(x + 0.5) / (double)width_;
+	double yd = (double)(y + 0.5) / (double)height_;
 	Vector3 target = upperLeftBound_ + vdx_ * xd + vdy_ * yd;
 
 	ray.direction = target - eyePosition_;
