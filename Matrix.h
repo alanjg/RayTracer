@@ -37,9 +37,6 @@ public:
 	Matrix44 GetInverse();
 	Matrix44 GetTranspose();
 
-	//gets the determinant of 3x3
-//	double Det3();
-
 private:
 
 	double Det2(int i1, int i2, int j1, int j2) const;

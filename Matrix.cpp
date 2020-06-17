@@ -177,95 +177,6 @@ void Matrix44::MakeScale(double x, double y, double z)
 	v[3][0] = 0;	v[3][1] = 0;	v[3][2] = 0;	v[3][3] = 1;
 }
 
-/*
-struct DetCalc
-{
-	DetCalc(Matrix44& m):
-		mat(m)
-	{
-		cols[0] = cols[1] = cols[2] = cols[3] = false;
-		rows[0] = rows[1] = rows[2] = rows[3] = false;
-	}
-	Matrix44& mat;
-	bool cols[4];
-	bool rows[4];
-	double Det4()
-	{
-		return mat[0][0]*Det3(1,2,3,1,2,3) - mat[0][1]*Det3(1,2,3,0,2,3) + mat[0][2]*Det3(1,2,3,0,1,3) - mat[0][3]*Det3(1,2,3,0,1,2);
-	}
-	double Det3(int i1,int i2,int i3,int j1,int j2,int j3)
-	{
-		return mat[i1][j1]*Det2(i2,i3,j2,j3)-mat[i1][j2]*Det2(i2,i3,j1,j3)+mat[i1][j3]*Det2(i2,i3,j1,j2);
-	}
-	double Det2(int i1,int i2,int j1,int j2)
-	{
-		return mat[i1][j1]*mat[i2][j2]-mat[i1][j2]*mat[i2][j1];
-	}
-	double operator()(int row,int col,int left=3)
-	{
-		if(left == 1)
-			return mat[row][col];
-
-		double sum = 0;
-		rows[row] = true;
-		cols[col] = true;
-		bool even = true;
-		for(int i=0;i<4;i++)
-		{
-			if(rows[i]) continue;
-			for(int j=0;j<4;j++)
-			{
-				if(cols[j]) continue;
-				double det = mat[i][j] * (*this)(i,j,left-1);
-				if(!even)
-					det *= -1;
-
-				sum += det;
-
-				even = !even;
-			}
-		}
-		rows[row] = false;
-		cols[col] = false;
-		return sum;
-	}
-};
-//negatives are jacked
-
-void Matrix44::Invert()
-{
-	//(A^-1)ij = Aji/detA
-	//Aji = (-1)^(i+j)*detA(removing i,j)
-	DetCalc calc(*this);
-
-	double det = 0;
-	//for(int i=0;i<4;i++)
-	//	det += calc(i,0) * v[i][0] * (i%2?-1:1);
-
-	det = calc.Det4();
-	std::cerr<<"Determinant: "<<det<<std::endl;
-	int i1[]={1,0,0,0};
-	int i2[]={2,2,1,1};
-	int i3[]={3,3,3,2};
-	int j1[]={1,0,0,0};
-	int j2[]={2,2,1,1};
-	int j3[]={3,3,3,2};
-	Matrix44 result;
-	for(int i=0;i<4;i++)
-	{
-		for(int j=0;j<4;j++)
-		{
-			DetCalc calc(*this);
-			double val = calc.Det3(i1[i],i2[i],i3[i],j1[j],j2[j],j3[j]);
-			//result[i][j] = calc(i,j)/det;
-			result[i][j] = val/det;
-			if((i + j) % 2)
-				result[i][j] *= -1;
-		}
-	}
-	*this = result;
-}
-*/
 double Matrix44::Det4() const
 {
 	return v[0][0] * Det3(1, 2, 3, 1, 2, 3) - v[0][1] * Det3(1, 2, 3, 0, 2, 3) + v[0][2] * Det3(1, 2, 3, 0, 1, 3) - v[0][3] * Det3(1, 2, 3, 0, 1, 2);
@@ -353,13 +264,6 @@ Matrix44 Matrix44::GetTranspose()
 	x.Transpose();
 	return x;
 }
-
-//double Matrix44::Det3()
-//{
-//	return (v[0][0] * (v[1][1] * v[2][2] - v[2][1] * v[1][2]) -
-//		v[0][1] * (v[1][0] * v[2][2] - v[2][0] * v[1][2]) +
-//		v[0][2] * (v[1][0] * v[2][1] - v[2][0] * v[1][1]));
-//}
 
 std::ostream& operator<<(std::ostream& out, const Matrix44& m)
 {
