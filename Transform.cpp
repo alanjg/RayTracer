@@ -97,16 +97,27 @@ Vector3 Transform::TransformWorldPointToLocal(const Vector3& point) const
 	return inverse_ * Vector4(point, 1);
 }
 
-Vector3 Transform::TransformLocalNormalToWorld(const Vector3& point) const
+Vector3 Transform::TransformLocalNormalToWorld(const Vector3& normal) const
 {
 	CheckTransform();
-	return transpose_ * Vector4(point, 1).Normalized();
+	Vector3 result = inverseTranspose_ * Vector4(normal, 0);
+	return result.Normalized();
 }
 
-Vector3 Transform::TransformWorldNormalToLocal(const Vector3& point) const
+Vector3 Transform::TransformWorldNormalToLocal(const Vector3& normal) const
 {
 	CheckTransform();
-	return inverseTranspose_ * Vector4(point, 1).Normalized();
+	Vector3 result = transpose_ * Vector4(normal, 0);
+	return result.Normalized();
+}
+
+Intersection Transform::TransformLocalIntersectionToWorld(const Ray& ray, const Intersection& intersection) const
+{
+	Intersection result(intersection);
+	result.point = TransformLocalPointToWorld(intersection.point);
+	result.normal = TransformLocalNormalToWorld(intersection.normal);
+	result.distance = (ray.origin - result.point).Magnitude();
+	return result;
 }
 
 Transform::Transform()

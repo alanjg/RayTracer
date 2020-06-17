@@ -1,4 +1,5 @@
 #pragma once
+#include "Intersection.h"
 #include "Matrix.h"
 #include "Ray.h"
 #include "Vector.h"
@@ -16,14 +17,17 @@ public:
 	void SetScale(double x, double y, double z);
 	Vector3 GetScale() const;
 	Matrix44 GetMatrix() const;
+
 	Ray TransformLocalToWorld(const Ray& ray) const;
 	Ray TransformWorldToLocal(const Ray& ray) const;
 
 	Vector3 TransformLocalPointToWorld(const Vector3& point) const;
 	Vector3 TransformWorldPointToLocal(const Vector3& point) const;
 
-	Vector3 TransformLocalNormalToWorld(const Vector3& point) const;
-	Vector3 TransformWorldNormalToLocal(const Vector3& point) const;
+	Vector3 TransformLocalNormalToWorld(const Vector3& normal) const;
+	Vector3 TransformWorldNormalToLocal(const Vector3& normal) const;
+
+	Intersection TransformLocalIntersectionToWorld(const Ray& ray, const Intersection& intersection) const;
 
 	Transform();
 
