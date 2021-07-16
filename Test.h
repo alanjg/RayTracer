@@ -6,6 +6,12 @@ class Test
 {
 	RayTracer& rt;
 	Scene* scene_;
+
+	// Sets the camera and adds the Cornell box
+	void MakeCornellBox();
+
+	// Creates a rectangular light in the cornell box
+	void MakeCornellBoxRectLight();
 public:
 	Test(RayTracer& raytracer) : rt(raytracer), scene_(raytracer.GetScene()) {}
 	~Test();
@@ -32,4 +38,8 @@ public:
 	void LoadTestScene7();
 	void LoadTestScene8();
 	void LoadTestScene9();
+	void LoadTestScene10();
+
+	void LoadGlassCausticTest();
+	void LoadCausticGlassPolygon();
 };

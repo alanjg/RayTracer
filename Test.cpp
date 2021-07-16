@@ -21,18 +21,75 @@
 #include "Camera.h"
 #include "Scene.h"
 #include "Light.h"
-
-void print(std::vector<int>::iterator begin, std::vector<int>::iterator end)
-{
-	while (begin != end)
-	{
-		std::cout << *begin++ << " ";
-	}
-	std::cout << std::endl;
-}
+#include "PlyParser.h"
+#include "Objects/TriangleMesh.h"
 
 Test::~Test()
 {
+}
+
+void Test::MakeCornellBoxRectLight()
+{
+	Material* lightMaterial = new DiffuseLightMaterial(Color(1, 1, 1));
+	Transform t1;
+	double lightPower = 3000000;
+	std::pair<std::unique_ptr<Light>, std::unique_ptr<IObject>> lightPair = CreateRectangleAreaLight(Vector3(220, 550, -287), Vector3(220, 550, -437), Vector3(370, 550, -287), Color(lightPower, lightPower, lightPower), Color(10, 10, 10), t1, lightMaterial);
+	scene_->AddLight(std::move(lightPair.first));
+	scene_->AddObject(std::move(lightPair.second));
+}
+
+void Test::MakeCornellBox()
+{
+	// cornell box
+	scene_->SetBackgroundColor(Color(0.05, 0.05, 0.05));
+	Camera& camera = scene_->GetCamera();
+	camera.centerOfInterest = Vector3(278, 278, 0);
+	camera.position = Vector3(278, 278, 700);
+	camera.aperture = 0.0;
+	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
+	right.Normalize();
+	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
+	up.Normalize();
+	camera.up = up;
+	camera.fov = 40;
+
+	Material* red = new LambertianMaterial(Color(.65, .05, .05));
+	Material* green = new LambertianMaterial(Color(.12, .45, .15));
+	Material* white = new LambertianMaterial(Color(.73, .73, .73));
+
+
+	
+
+	Transform t2;
+	//right wall
+	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
+	Polygon* ps = new Polygon(pts);
+	ShapeObject* p = new ShapeObject(ps, t2, green);
+	scene_->AddObject(p);
+
+	//left wall
+	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, red);
+	scene_->AddObject(p);
+
+	//ceiling
+	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
+	scene_->AddObject(p);
+
+	//floor
+	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
+	scene_->AddObject(p);
+
+	//back wall
+	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
+	ps = new Polygon(pts);
+	p = new ShapeObject(ps, t2, white);
+	scene_->AddObject(p);
 }
 
 void GenSpheres(Scene* scene_, int depth, double radius, Vector3 position, Vector3 from)
@@ -640,57 +697,10 @@ void Test::LoadTestScene1()
 // cornell box with two diffuse spheres and a point light
 void Test::LoadTestScene2()
 {	
-	scene_->SetBackgroundColor(Color(0.05, 0.05, 0.05));
-	Camera& camera = scene_->GetCamera();
-	camera.centerOfInterest = Vector3(278, 278, 0);
-	camera.position = Vector3(278, 278, 800);
-	camera.aperture = 0.0;
-	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
-	right.Normalize();
-	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
-	up.Normalize();
-	camera.up = up;
-	camera.fov = 40;
+	MakeCornellBox();
+	MakeCornellBoxRectLight();
 
-	Material* red = new LambertianMaterial(Color(.65, .05, .05));
-	Material* green = new LambertianMaterial(Color(.12, .45, .15));
 	Material* white = new LambertianMaterial(Color(.73, .73, .73));
-
-	double lightPower = 3000000;
-	Light* light = new PointLight(Vector3(270, 350, -287), Color(lightPower, lightPower, lightPower), Color(100000, 100000, 100000));
-	scene_->AddLight(light);
-
-	Transform t2;
-	//right wall
-	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* ps = new Polygon(pts);
-	ShapeObject* p = new ShapeObject(ps, t2, green);
-	scene_->AddObject(p);
-
-	//left wall
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, red);
-	scene_->AddObject(p);
-
-	//ceiling
-	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//floor
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//back wall
-	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
 	Transform t;
 	t.SetTranslate(365, 80, -165);
 	Sphere* s1 = new Sphere(80);
@@ -708,59 +718,11 @@ void Test::LoadTestScene2()
 // cornell box with a metal sphere and a glass sphere, and a point light.  Used for global photon map test.
 void Test::LoadTestScene3()
 {
-	// cornell box
-	scene_->SetBackgroundColor(Color(0.05, 0.05, 0.05));
-	Camera& camera = scene_->GetCamera();
-	camera.centerOfInterest = Vector3(278, 278, 0);
-	camera.position = Vector3(278, 278, 800);
-	camera.aperture = 0.0;
-	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
-	right.Normalize();
-	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
-	up.Normalize();
-	camera.up = up;
-	camera.fov = 40;
+	MakeCornellBox();
+	MakeCornellBoxRectLight();
 
-	Material* red = new LambertianMaterial(Color(.65, .05, .05));
-	Material* green = new LambertianMaterial(Color(.12, .45, .15));
-	Material* grey = new LambertianMaterial(Color(.73, .73, .73));
-	Material* metal = new MetalMaterial(Color(1, 1, 1), 0);
 	Material* dielectric = new DielectricMaterial(1.5);
-
-	double lightPower = 3000000;
-	Light* light = new PointLight(Vector3(270, 350, -287), Color(lightPower, lightPower, lightPower), Color(100000, 100000, 100000));
-	scene_->AddLight(light);
-
-	Transform t2;
-	//right wall
-	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* ps = new Polygon(pts);
-	ShapeObject* p = new ShapeObject(ps, t2, green);
-	scene_->AddObject(p);
-
-	//left wall
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, red);
-	scene_->AddObject(p);
-
-	//ceiling
-	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, grey);
-	scene_->AddObject(p);
-
-	//floor
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, grey);
-	scene_->AddObject(p);
-
-	//back wall
-	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, grey);
-	scene_->AddObject(p);
+	Material* metal = new MetalMaterial(Color(1, 1, 1), 0);
 
 	Transform t;
 	t.SetTranslate(365, 80, -165);
@@ -779,63 +741,11 @@ void Test::LoadTestScene3()
 // cornell box with a glass sphere, and an area light.  Used for caustic test
 void Test::LoadTestScene4()
 {
-	// cornell box
-	scene_->SetBackgroundColor(Color(0.05, 0.05, 0.05));
-	Camera& camera = scene_->GetCamera();
-	camera.centerOfInterest = Vector3(278, 278, 0);
-	camera.position = Vector3(278, 278, 700);
-	camera.aperture = 0.0;
-	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
-	right.Normalize();
-	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
-	up.Normalize();
-	camera.up = up;
-	camera.fov = 40;
+	MakeCornellBox(); 
+	MakeCornellBoxRectLight();
 
-	Material* red = new LambertianMaterial(Color(.65, .05, .05));
-	Material* green = new LambertianMaterial(Color(.12, .45, .15));
-	Material* white = new LambertianMaterial(Color(.73, .73, .73));
-	Material* metal = new MetalMaterial(Color(1, 1, 1), 0);
 	Material* dielectric = new DielectricMaterial(1.5);
-	Material* lightMaterial = new DiffuseLightMaterial(Color(1, 1, 1));
-	double lightPower = 3000000;
-
-	Transform t1;
-	std::pair<std::unique_ptr<Light>, std::unique_ptr<IObject>> lightPair = CreateRectangleAreaLight(Vector3(220, 550, -287), Vector3(220, 550, -437), Vector3(370, 550, -287), Color(lightPower, lightPower, lightPower), Color(10, 10, 10), t1, lightMaterial);
-	scene_->AddLight(std::move(lightPair.first));
-	scene_->AddObject(std::move(lightPair.second));
-
-	Transform t2;
-	//right wall
-	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555)  });
-	Polygon* ps = new Polygon(pts);
-	ShapeObject* p = new ShapeObject(ps, t2, green);
-	scene_->AddObject(p);
-
-	//left wall
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, red);
-	scene_->AddObject(p);
-
-	//ceiling
-	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//floor
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//back wall
-	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
+	
 	Transform t;
 	t.SetTranslate(365, 80, -165);
 	Sphere* s1 = new Sphere(80);
@@ -849,62 +759,9 @@ void Test::LoadTestScene4()
 // cornell box with a glass sphere, and an area light.  Used for caustic test
 void Test::LoadTestScene5()
 {
-	// cornell box
-	scene_->SetBackgroundColor(Color(0.05, 0.05, 0.05));
-	Camera& camera = scene_->GetCamera();
-	camera.centerOfInterest = Vector3(278, 278, 0);
-	camera.position = Vector3(278, 278, 700);
-	camera.aperture = 0.0;
-	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
-	right.Normalize();
-	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
-	up.Normalize();
-	camera.up = up;
-	camera.fov = 40;
-
-	Material* red = new LambertianMaterial(Color(.65, .05, .05));
-	Material* green = new LambertianMaterial(Color(.12, .45, .15));
-	Material* white = new LambertianMaterial(Color(.73, .73, .73));
-	Material* metal = new MetalMaterial(Color(1, 1, 1), 0);
+	MakeCornellBox();
+	MakeCornellBoxRectLight();
 	Material* dielectric = new DielectricMaterial(1.5);
-	Material* lightMaterial = new DiffuseLightMaterial(Color(1, 1, 1));
-	double lightPower = 3000000;
-
-	Transform t1;
-	std::pair<std::unique_ptr<Light>, std::unique_ptr<IObject>> lightPair = CreateRectangleAreaLight(Vector3(220, 550, -287), Vector3(220, 550, -437), Vector3(370, 550, -287), Color(lightPower, lightPower, lightPower), Color(10, 10, 10), t1, lightMaterial);
-	scene_->AddLight(std::move(lightPair.first));
-	scene_->AddObject(std::move(lightPair.second));
-
-	Transform t2;
-	//right wall
-	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* ps = new Polygon(pts);
-	ShapeObject* p = new ShapeObject(ps, t2, green);
-	scene_->AddObject(p);
-
-	//left wall
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, red);
-	scene_->AddObject(p);
-
-	//ceiling
-	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//floor
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//back wall
-	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
 
 	Transform t;
 	t.SetTranslate(365, 80, -165);
@@ -919,84 +776,29 @@ void Test::LoadTestScene5()
 // cornell box with a reflecting sphere, glass sphere, half full water glass
 void Test::LoadTestScene6()
 {
-	// cornell box
-	scene_->SetBackgroundColor(Color(0.05, 0.05, 0.05));
-	Camera& camera = scene_->GetCamera();
-	camera.centerOfInterest = Vector3(278, 278, 0);
-	camera.position = Vector3(278, 278, 700);
-	camera.aperture = 0.0;
-	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
-	right.Normalize();
-	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
-	up.Normalize();
-	camera.up = up;
-	camera.fov = 40;
+	MakeCornellBox();
+	MakeCornellBoxRectLight();
 
-	Material* red = new LambertianMaterial(Color(.65, .05, .05));
-	Material* green = new LambertianMaterial(Color(.12, .45, .15));
-	Material* white = new LambertianMaterial(Color(.73, .73, .73));
 	Material* metal = new MetalMaterial(Color(1, 1, 1), 0);
 	Material* glass = new DielectricMaterial(1.5);
 	Material* water = new DielectricMaterial(1.33);
-	Material* lightMaterial = new DiffuseLightMaterial(Color(1, 1, 1));
-	double lightPower = 3000000;
-
-	Transform t1;
-	//std::pair<std::unique_ptr<Light>, std::unique_ptr<Object>> lightPair = CreateRectangleAreaLight(Vector3(220, 550, -287), Vector3(220, 550, -437), Vector3(370, 550, -287), Color(lightPower, lightPower, lightPower), Color(10, 10, 10), t1, lightMaterial);
-	//scene_->AddLight(std::move(lightPair.first));
-	//scene_->AddObject(std::move(lightPair.second));
-
-	Light* light = new PointLight(Vector3(295, 450, -312), Color(lightPower, lightPower, lightPower), Color(100000, 100000, 100000));
-	scene_->AddLight(light);
-
-	Transform t2;
-	//right wall
-	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* ps = new Polygon(pts);
-	ShapeObject* p = new ShapeObject(ps, t2, green);
-	scene_->AddObject(p);
-
-	//left wall
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, red);
-	scene_->AddObject(p);
-
-	//ceiling
-	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//floor
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//back wall
-	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
 
 	Transform t;
-	t.SetTranslate(365, 80, -165);
+	t.SetTranslate(365, 80.1, -165);
 
 	Sphere* ss = new Sphere(80);
 	ShapeObject* s = new ShapeObject(ss, t, glass);
 	scene_->AddObject(s);
 
 
-	t.SetTranslate(130, 120, -395);
+	t.SetTranslate(130, 120.1, -395);
 	ss = new Sphere(120);
 	s = new ShapeObject(ss, t, metal);
 	scene_->AddObject(s);
 
-	t.SetTranslate(120, 0, -170);
+	t.SetTranslate(120, 0.1, -170);
 	Cylinder* co = new Cylinder(40, 90);
 	ShapeObject* c = new ShapeObject(co, t, glass);
-
 	scene_->AddObject(c);
 
 	t.SetTranslate(230, 10, -220);
@@ -1004,11 +806,14 @@ void Test::LoadTestScene6()
 	ShapeObject* w = new ShapeObject(wo, t, water);
 	//scene_->AddObject(w);
 
-	t.SetTranslate(230, 0, -220);
+	t.SetTranslate(230, 0.1, -220);
 	Cylinder* c1 = new Cylinder(40, 160);
-	Cylinder* c2 = new Cylinder(37, 160);
 	CSGNode* p1 = new CSGNode(c1, t);
+
+	t.SetTranslate(230, 30, -220);
+	Cylinder* c2 = new Cylinder(37, 160);
 	CSGNode* p2 = new CSGNode(c2, t);
+
 	CSGNode* d = new CSGNode(p1, p2, CSGOperationType::Difference);
 
 	t.SetTranslate(0, 0, 0);
@@ -1019,67 +824,15 @@ void Test::LoadTestScene6()
 	scene_->BalanceTree();
 }
 
+
 // cornell box with an empty glass
 void Test::LoadTestScene7()
 {
-	// cornell box
-	scene_->SetBackgroundColor(Color(0.05, 0.05, 0.05));
-	Camera& camera = scene_->GetCamera();
-	camera.centerOfInterest = Vector3(278, 278, 0);
-	camera.position = Vector3(278, 278, 700);
-	camera.aperture = 0.0;
-	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
-	right.Normalize();
-	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
-	up.Normalize();
-	camera.up = up;
-	camera.fov = 40;
-
-	Material* red = new LambertianMaterial(Color(.65, .05, .05));
-	Material* green = new LambertianMaterial(Color(.12, .45, .15));
-	Material* white = new LambertianMaterial(Color(.73, .73, .73));
+	MakeCornellBox();
+	MakeCornellBoxRectLight();
 	Material* metal = new MetalMaterial(Color(1, 1, 1), 0);
 	Material* glass = new DielectricMaterial(1.5);
 	Material* water = new DielectricMaterial(1.33);
-	Material* lightMaterial = new DiffuseLightMaterial(Color(1, 1, 1));
-	double lightPower = 3000000;
-
-	Transform t1;
-
-	Light* light = new PointLight(Vector3(295, 450, -312), Color(lightPower, lightPower, lightPower), Color(100000, 100000, 100000));
-	scene_->AddLight(light);
-
-	Transform t2;
-	//right wall
-	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* ps = new Polygon(pts);
-	ShapeObject* p = new ShapeObject(ps, t2, green);
-	scene_->AddObject(p);
-
-	//left wall
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, red);
-	scene_->AddObject(p);
-
-	//ceiling
-	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//floor
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//back wall
-	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
 
 	Transform t;
 	t.SetTranslate(230, 10, -220);
@@ -1105,63 +858,12 @@ void Test::LoadTestScene7()
 // cornell box with a glass with water
 void Test::LoadTestScene8()
 {
-	// cornell box
-	scene_->SetBackgroundColor(Color(0.05, 0.05, 0.05));
-	Camera& camera = scene_->GetCamera();
-	camera.centerOfInterest = Vector3(278, 278, 0);
-	camera.position = Vector3(278, 278, 700);
-	camera.aperture = 0.0;
-	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
-	right.Normalize();
-	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
-	up.Normalize();
-	camera.up = up;
-	camera.fov = 40;
 
-	Material* red = new LambertianMaterial(Color(.65, .05, .05));
-	Material* green = new LambertianMaterial(Color(.12, .45, .15));
-	Material* white = new LambertianMaterial(Color(.73, .73, .73));
+	MakeCornellBox();
+	MakeCornellBoxRectLight();
 	Material* metal = new MetalMaterial(Color(1, 1, 1), 0);
 	Material* glass = new DielectricMaterial(1.5);
 	Material* water = new DielectricMaterial(1.33);
-	Material* lightMaterial = new DiffuseLightMaterial(Color(1, 1, 1));
-	double lightPower = 3000000;
-
-	Transform t1;
-
-	Light* light = new PointLight(Vector3(295, 450, -312), Color(lightPower, lightPower, lightPower), Color(100000, 100000, 100000));
-	scene_->AddLight(light);
-
-	Transform t2;
-	//right wall
-	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* ps = new Polygon(pts);
-	ShapeObject* p = new ShapeObject(ps, t2, green);
-	scene_->AddObject(p);
-
-	//left wall
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, red);
-	scene_->AddObject(p);
-
-	//ceiling
-	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//floor
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//back wall
-	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
 
 	Transform t;
 	t.SetTranslate(230, 10, -220);
@@ -1184,67 +886,14 @@ void Test::LoadTestScene8()
 	scene_->BalanceTree();
 }
 
-
 // cornell box with a water level set
 void Test::LoadTestScene9()
 {
-	// cornell box
-	scene_->SetBackgroundColor(Color(0.05, 0.05, 0.05));
-	Camera& camera = scene_->GetCamera();
-	camera.centerOfInterest = Vector3(278, 278, 0);
-	camera.position = Vector3(278, 278, 700);
-	camera.aperture = 0.0;
-	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
-	right.Normalize();
-	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
-	up.Normalize();
-	camera.up = up;
-	camera.fov = 40;
-
-	Material* red = new LambertianMaterial(Color(.65, .05, .05));
-	Material* green = new LambertianMaterial(Color(.12, .45, .15));
-	Material* white = new LambertianMaterial(Color(.73, .73, .73));
+	MakeCornellBox();
+	MakeCornellBoxRectLight();
 	Material* metal = new MetalMaterial(Color(1, 1, 1), 0);
 	Material* glass = new DielectricMaterial(1.5);
 	Material* water = new DielectricMaterial(1.33);
-	Material* lightMaterial = new DiffuseLightMaterial(Color(1, 1, 1));
-	double lightPower = 3000000;
-
-	Transform t1;
-
-	Light* light = new PointLight(Vector3(295, 450, -312), Color(lightPower, lightPower, lightPower), Color(100000, 100000, 100000));
-	scene_->AddLight(light);
-
-	Transform t2;
-	//right wall
-	std::vector<Vector3> pts({ Vector3(555,0,0), Vector3(555,555,0), Vector3(555,555,-555), Vector3(555,0,-555) });
-	Polygon* ps = new Polygon(pts);
-	ShapeObject* p = new ShapeObject(ps, t2, green);
-	scene_->AddObject(p);
-
-	//left wall
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(0,0,-555), Vector3(0,555,-555), Vector3(0,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, red);
-	scene_->AddObject(p);
-
-	//ceiling
-	pts = std::vector<Vector3>({ Vector3(0,555,0), Vector3(0,555,-555), Vector3(555,555,-555),  Vector3(555,555,0) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//floor
-	pts = std::vector<Vector3>({ Vector3(0,0,0), Vector3(555,0,0), Vector3(555,0,-555), Vector3(0,0,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
-
-	//back wall
-	pts = std::vector<Vector3>({ Vector3(0,0,-555), Vector3(555,0,-555), Vector3(555,555,-555), Vector3(0,555,-555) });
-	ps = new Polygon(pts);
-	p = new ShapeObject(ps, t2, white);
-	scene_->AddObject(p);
 
 	Transform t;
 	t.SetTranslate(0, 80, -220);
@@ -1278,6 +927,132 @@ void Test::LoadTestScene9()
 	//ShapeObject s = new ShapeObject(ss, t, water);
 	scene_->AddObject(o);
 	//scene_->AddObject(s);
+
+	scene_->BalanceTree();
+}
+
+// cornell box with a metal ring
+void Test::LoadTestScene10()
+{
+	double lightPower = 1600000;
+	MakeCornellBox();
+	PointLight* pointLight = new PointLight(Vector3(255, 80, -255), Color(lightPower, lightPower, lightPower), Color(20000, 20000, 20000));
+	scene_->AddLight(pointLight);
+
+	Camera& camera = scene_->GetCamera();
+	camera.centerOfInterest = Vector3(325, 0, -325);
+	camera.position = Vector3(278, 225, 200);
+	camera.aperture = 0.0;
+	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
+	right.Normalize();
+	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
+	up.Normalize();
+	camera.up = up;
+	camera.fov = 40;
+
+	Material* metal = new MetalMaterial(Color(212/255.0, 175/255.0, 55/255.0), 0.01);
+	Material* glass = new DielectricMaterial(1.5);
+	Material* water = new DielectricMaterial(1.33);
+
+	Transform t;
+	t.SetTranslate(325, 0, -325);
+	Cylinder* c1 = new Cylinder(80, 20);
+	Cylinder* c2 = new Cylinder(77, 20);
+	CSGNode* p1 = new CSGNode(c1, t);
+	CSGNode* p2 = new CSGNode(c2, t);
+	CSGNode* d = new CSGNode(p1, p2, CSGOperationType::Difference);
+
+	t.SetTranslate(0, 0, 0);
+	CSGShape* csg = new CSGShape(d);
+	ShapeObject* object = new ShapeObject(csg, t, metal);
+	scene_->AddObject(object);
+
+	scene_->BalanceTree();
+}
+
+void Test::LoadGlassCausticTest()
+{
+	double lightPower = 1600000;
+	double lightEmittance = 200;
+	
+	PointLight* pointLight = new PointLight(Vector3(0, 5, 9), Color(lightPower * 139.811, lightPower * 118.637, lightPower * 105.389), Color(lightEmittance * 139.811, lightEmittance * 118.637, lightEmittance * 105.389));
+	scene_->AddLight(pointLight);
+	
+	PointLight* directionalLight = new PointLight(Vector3(0, 5, 9), Color(lightPower * 139.811, lightPower * 118.637, lightPower * 105.389), Color(lightEmittance * 139.811, lightEmittance * 118.637, lightEmittance * 105.389));
+	scene_->AddLight(pointLight);
+
+
+	Camera& camera = scene_->GetCamera();
+	camera.centerOfInterest = Vector3(325, 0, -325);
+	camera.position = Vector3(278, 225, 200);
+	camera.aperture = 0.0;
+	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
+	right.Normalize();
+	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
+	up.Normalize();
+	camera.up = up;
+	camera.fov = 40;
+
+	Material* metal = new MetalMaterial(Color(212 / 255.0, 175 / 255.0, 55 / 255.0), 0.01);
+	Material* glass = new DielectricMaterial(1.5);
+	Material* water = new DielectricMaterial(1.33);
+
+	Transform t;
+	t.SetTranslate(325, 0, -325);
+	Cylinder* c1 = new Cylinder(80, 20);
+	Cylinder* c2 = new Cylinder(77, 20);
+	CSGNode* p1 = new CSGNode(c1, t);
+	CSGNode* p2 = new CSGNode(c2, t);
+	CSGNode* d = new CSGNode(p1, p2, CSGOperationType::Difference);
+
+	t.SetTranslate(0, 0, 0);
+	CSGShape* csg = new CSGShape(d);
+	ShapeObject* object = new ShapeObject(csg, t, metal);
+	scene_->AddObject(object);
+
+	scene_->BalanceTree();
+}
+
+
+void Test::LoadCausticGlassPolygon()
+{
+	PlyTriangleMesh mesh;
+	ParseFromPly("G:/Code/models/repo/caustic-glass/geometry/mesh_00001.ply", mesh);
+	double lightPower = 10;
+	double lightEmittance = 1;
+
+	PointLight* pointLight = new PointLight(Vector3(0, 5, 9), Color(lightPower * 139.811, lightPower * 118.637, lightPower * 105.389), Color(lightEmittance * 139.811, lightEmittance * 118.637, lightEmittance * 105.389));
+	scene_->AddLight(pointLight);
+
+	PointLight* pointLight2 = new PointLight(Vector3(-5.5, 7, -5.5), Color(lightPower * 139.811, lightPower * 118.637, lightPower * 105.389), Color(lightEmittance * 139.811, lightEmittance * 118.637, lightEmittance * 105.389));
+	scene_->AddLight(pointLight2);
+
+	Camera& camera = scene_->GetCamera();
+	camera.centerOfInterest = Vector3(-4.75, 2.25, 0);
+	camera.position = Vector3(-5.5, 7, -5.5);
+	camera.aperture = 0.0;
+	Vector3 right = (camera.centerOfInterest - camera.position).Cross(Vector3(0, 1, 0));
+	right.Normalize();
+	Vector3 up = right.Cross(camera.centerOfInterest - camera.position);
+	up.Normalize();
+	camera.up = up;
+	camera.fov = 30;
+
+	Material* glass = new DielectricMaterial(1.25);
+	Material* wood = new LambertianMaterial(Color(0.5, 0.5, 0.5));
+
+	Transform t;
+	t.SetTranslate(0, 0, 0);
+	TriangleMesh* t1 = new TriangleMesh(mesh.vertices, mesh.indices);
+	ShapeObject* object = new ShapeObject(t1, t, glass);
+	scene_->AddObject(object);
+
+	PlyTriangleMesh mesh2;
+	ParseFromPly("G:/Code/models/repo/caustic-glass/geometry/mesh_00002.ply", mesh2);
+	TriangleMesh* t2 = new TriangleMesh(mesh2.vertices, mesh2.indices);
+	ShapeObject* object2 = new ShapeObject(t2, t, wood);
+	scene_->AddObject(object2);
+
 
 	scene_->BalanceTree();
 }

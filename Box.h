@@ -18,6 +18,18 @@ public:
 	{
 		vmin_[0] = xmin; vmin_[1] = ymin; vmin_[2] = zmin; vmax_[0] = xmax; vmax_[1] = ymax; vmax_[2] = zmax;
 	}
+
+	void Extend(const Vector3& point)
+	{
+		vmin_[0] = std::min(vmin_[0], point[0]);
+		vmin_[1] = std::min(vmin_[1], point[1]);
+		vmin_[2] = std::min(vmin_[2], point[2]);
+
+		vmax_[0] = std::max(vmax_[0], point[0]);
+		vmax_[1] = std::max(vmax_[1], point[1]);
+		vmax_[2] = std::max(vmax_[2], point[2]);
+	}
+
 	void GetBounds(Vector3& vmin, Vector3& vmax) { vmin = vmin_; vmax = vmax_; }
 	void GetBounds(double& xmin, double& ymin, double& zmin, double& xmax, double& ymax, double& zmax)
 	{

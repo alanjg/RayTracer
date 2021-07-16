@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "RayTracer.h"
-#include "stb_image_write.h"
+#include "External/stb/stb_image_write.h"
 
 RayTracer::RayTracer()
 {
@@ -104,7 +104,7 @@ void RayTracer::RenderTile(double* pixels, const Tile& tile)
 		{
 			Color color(0, 0, 0);
 			for (int i = 0; i < global_options.num_samples; i++)
-			{
+			{				
 				Ray ray;
 				if (global_options.num_samples == 1)
 				{
@@ -120,9 +120,9 @@ void RayTracer::RenderTile(double* pixels, const Tile& tile)
 				{
 					if (sample.r > 1 || sample.g > 1 || sample.b > 1)
 					{
-					//	std::cout << "clamped " << sample << std::endl;
+						//	std::cout << "clamped " << sample << std::endl;
 					}
-					
+
 					sample.Clamp(0, 1);
 					if (sample.r == 0 && sample.g == 0 && sample.b == 0)
 					{
@@ -133,22 +133,21 @@ void RayTracer::RenderTile(double* pixels, const Tile& tile)
 				else
 				{
 					std::cout << "bad" << std::endl;
-					//throw std::exception();
 				}
-			}
-			
-			Color rayColor = color * double(1.0 / global_options.num_samples);
-			if (rayColor.r > 1 || rayColor.g > 1 || rayColor.b > 1)
-			{
-				std::cout << "clamped " << rayColor << std::endl;
-			}
-			rayColor.Clamp(0, 1);
-			
+				
+				Color rayColor = color * double(1.0 / global_options.num_samples);
+				if (rayColor.r > 1 || rayColor.g > 1 || rayColor.b > 1)
+				{
+					std::cout << "clamped " << rayColor << std::endl;
+				}
 
-			//sqrt for gamma correction
-			pixels[y * (width * 3) + x * 3 + 0] = sqrt(rayColor.r);
-			pixels[y * (width * 3) + x * 3 + 1] = sqrt(rayColor.g);
-			pixels[y * (width * 3) + x * 3 + 2] = sqrt(rayColor.b);
+				rayColor.Clamp(0, 1);
+
+				//sqrt for gamma correction
+				pixels[y * (width * 3) + x * 3 + 0] = sqrt(rayColor.r);
+				pixels[y * (width * 3) + x * 3 + 1] = sqrt(rayColor.g);
+				pixels[y * (width * 3) + x * 3 + 2] = sqrt(rayColor.b);
+			}
 		}
 	}
 }
@@ -271,7 +270,13 @@ Color RayTracer::Trace(const Ray& ray, int depth, IObject* sourceObject, bool is
 	Vector3 normal = intersection.normal;
 	const Material* material = intersection.hitObject->GetMaterial();
 
-	if (global_options.use_photon_mapping && global_options.use_caustics && global_options.debug_caustics_photon_map && material->HasDiffuseComponent())
+	if (global_options.use_photon_mapping && global_options.use_caustics && global_options.debug_caustics_photon_map) // && material->HasDiffuseComponent())
+	{
+		Color photonColor = scene_->GetCausticPhotonMap()->GetDebugVisualization(*material, ray, intersection);
+		return photonColor;
+	}
+
+	if (global_options.use_photon_mapping && global_options.use_caustics && global_options.use_caustics_photon_map_approximation && material->HasDiffuseComponent())
 	{
 		Color photonColor = scene_->GetCausticPhotonMap()->GetLuminance(*material, ray, intersection, global_options.caustics_photon_map_sample_count);
 		return photonColor;
@@ -298,7 +303,7 @@ Color RayTracer::Trace(const Ray& ray, int depth, IObject* sourceObject, bool is
 	bool scatterTransmission = false;
 	bool adjustScatterProbability = false;
 	// If using distribution tracing, select only one scatter type to avoid exponential recursive ray growth.  Otherwise, use all applicable scatter types and adjust the result by the probability of that type.
-	if (global_options.use_distribution_tracing)
+	if (global_options.use_distribution_tracing && global_options.num_samples > 1)
 	{
 		ScatterType scatterType = material->ScatterRussianRoulette(intersection, false);
 		if (scatterType == ScatterType::Diffuse)
@@ -314,7 +319,7 @@ Color RayTracer::Trace(const Ray& ray, int depth, IObject* sourceObject, bool is
 			scatterTransmission = true;
 		}
 	}
-	else
+	else if (!global_options.use_distribution_tracing)
 	{
 		adjustScatterProbability = true;
 		if (material->HasSpecularComponent())
@@ -326,6 +331,23 @@ Color RayTracer::Trace(const Ray& ray, int depth, IObject* sourceObject, bool is
 			scatterTransmission = true;
 		}
 		// No diffuse scattering happens without distribution tracing
+	}
+	else
+	{
+		// debugging path when distribution tracing = true and num_samples == 1
+		adjustScatterProbability = true;
+		if (material->HasSpecularComponent())
+		{
+			scatterSpecular = true;
+		}
+		if (material->HasTransmissionComponent())
+		{
+			scatterTransmission = true;
+		}
+		if (material->HasDiffuseComponent())
+		{
+			scatterDiffuse = true;
+		}
 	}
 
 	if (scatterSpecular)

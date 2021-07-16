@@ -156,48 +156,10 @@ void PhotonMap::Populate(const OctTree& tree, const std::vector<std::unique_ptr<
 Color PhotonMap::GetLuminance(const Material& material, const Ray& incoming, const Intersection& intersection, int numPhotons)
 {
 	std::vector<Photon> searchResults;
-	int MIN_PHOTONS = 1;
+	int MIN_PHOTONS = 4;
 	double maxSearchDistanceSquared = global_options.photon_map_max_sample_distance * global_options.photon_map_max_sample_distance;
 	double maxActualDistance = kdtree->Search(intersection.point, numPhotons, maxSearchDistanceSquared, searchResults);
 
-	if (false) // test photon map
-	{
-		std::vector<Photon> testResults;
-		NHeap<Photon, KDTree::PhotonComparer> resultsHeap(numPhotons, KDTree::PhotonComparer(intersection.point));
-		for (unsigned int i = 0; i < photons.size(); i++)
-		{
-			resultsHeap.Push(photons[i]);
-		}
-		testResults.resize(resultsHeap.Size());
-		testResults.assign(resultsHeap.begin(), resultsHeap.end());
-		std::sort(testResults.begin(), testResults.end(), KDTree::PhotonComparer(intersection.point));
-		if (testResults.size() < searchResults.size())
-		{
-
-			std::cout << "bad search" << std::endl;
-		}
-		else
-		{
-			for (unsigned int i = 0; i < searchResults.size(); i++)
-			{
-				if (searchResults[i] != testResults[i])
-				{
-					std::cout << "bad photon" << std::endl;
-				}
-			}
-			if (searchResults.size() < testResults.size())
-			{
-				for (unsigned int i = searchResults.size(); i < testResults.size(); i++)
-				{
-					if ((intersection.point - testResults[i].position).MagnitudeSquared() < maxSearchDistanceSquared)
-					{
-						std::cout << "bad result" << std::endl;
-					}
-				}
-			}
-		}
-	}
-	
 	int num = searchResults.size();
 	if (num >= MIN_PHOTONS)
 	{
@@ -257,4 +219,29 @@ Color EstimateRadianceConeFilter(const std::vector<Photon>& searchResults, const
 	Color radiance(0, 0, 0);
 	radiance = flux * (1 / (((1 - 2 / (3 * k)) * M_PI * maxActualDistance * maxActualDistance)));
 	return radiance;
+}
+
+Color PhotonMap::GetDebugVisualization(const Material& material, const Ray& incoming, const Intersection& intersection)
+{
+	std::vector<Photon> searchResults;
+	double maxSearchDistanceSquared = 4;
+	double maxActualDistance = kdtree->Search(intersection.point, 6, maxSearchDistanceSquared, searchResults);
+	int count = searchResults.size();
+	if (count == 0)
+	{
+		return Color(0, 0, 0);
+	}
+	else if(count < 3)
+	{
+		return Color(0, 0.5*count, 0);
+	}
+	else if (count < 5)
+	{
+		return Color(0, 0, 0.5 * (count - 2));
+	}
+	else
+	{
+		return Color(0.5 * (count - 4), 0, 0);
+	}
+	
 }

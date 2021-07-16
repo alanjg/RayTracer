@@ -89,7 +89,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>Transform.obj;Camera.obj;Color.obj;Cone.obj;CSGNode.obj;CSGObject.obj;Cylinder.obj;DielectricMaterial.obj;Ellipsoid.obj;Intersection.obj;KDTree.obj;LambertianMaterial.obj;Light.obj;main.obj;Material.obj;Math.obj;MaterialManager.obj;Matrix.obj;MetalMaterial.obj;NHeap.obj;Object.obj;ObjectFactory.obj;OctTree.obj;Options.obj;OrthoNormalBasis.obj;pch.obj;pdf.obj;Photon.obj;PhotonMap.obj;Polygon.obj;PolygonMesh.obj;Ray.obj;RayTracer.obj;Scene.obj;SignedDistanceFunctionObject.obj;Sphere.obj;stb_image_write.obj;Test.obj;Texture.obj;Vector.obj;VolumetricConstantMedium.obj;IsotropicMaterial.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Transform.obj;Camera.obj;Color.obj;Cone.obj;CSGNode.obj;CSGObject.obj;Cylinder.obj;DielectricMaterial.obj;Ellipsoid.obj;Intersection.obj;KDTree.obj;LambertianMaterial.obj;Light.obj;main.obj;Material.obj;Math.obj;MaterialManager.obj;Matrix.obj;MetalMaterial.obj;NHeap.obj;Object.obj;ObjectFactory.obj;OctTree.obj;Options.obj;OrthoNormalBasis.obj;pch.obj;pdf.obj;Photon.obj;PhotonMap.obj;Polygon.obj;Box3.obj;PlyParser.obj;rply.obj;TriangleMesh.obj;Ray.obj;RayTracer.obj;Scene.obj;SignedDistanceFunctionObject.obj;Sphere.obj;stb_image_write.obj;Test.obj;Texture.obj;Vector.obj;VolumetricConstantMedium.obj;IsotropicMaterial.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -47,6 +47,23 @@ public:
 	virtual ~PointLight() {}
 };
 
+class SpotLight : public Light
+{
+private:
+	Vector3 position_;
+	Vector3 direction_;
+	float totalAngle_;
+	float falloffAngle_;
+	Color emittance_;
+public:
+	SpotLight(const Vector3& position, const Vector3& direction, float totalAngle, float falloffAngle, const Color& power, const Color& emittance);
+	virtual Photon GenerateRandomPhoton(Vector3& direction) const;
+	virtual Color SampleLightEmittance(const Intersection& intersection, Vector3& sampleDirection, double& samplePdf) const;
+	virtual double EvaluateRadianceTransfer(const Intersection& surfaceIntersection, const Intersection& shadowRayIntersection) const;
+	virtual bool IsOccluded(const Intersection& surfaceIntersection, const Intersection& shadowRayIntersection) const;
+	virtual ~SpotLight() {}
+};
+
 class AreaLight : public Light
 {
 	IObject* lightObject_;

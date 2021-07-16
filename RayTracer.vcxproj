@@ -156,6 +156,7 @@
     <ClInclude Include="BVH.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Color.h" />
+    <ClInclude Include="External\rply\rply.h" />
     <ClInclude Include="Intersection.h" />
     <ClInclude Include="IntersectionAccelerator.h" />
     <ClInclude Include="KDTree.h" />
@@ -189,11 +190,10 @@
     <ClInclude Include="pdf.h" />
     <ClInclude Include="Photon.h" />
     <ClInclude Include="PhotonMap.h" />
+    <ClInclude Include="PlyParser.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RayTracer.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="Test.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Transform.h" />
@@ -204,6 +204,7 @@
     <ClCompile Include="BVH.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Color.cpp" />
+    <ClCompile Include="External\rply\rply.cpp" />
     <ClCompile Include="Intersection.cpp" />
     <ClCompile Include="KDTree.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -242,14 +243,19 @@
     <ClCompile Include="pdf.cpp" />
     <ClCompile Include="Photon.cpp" />
     <ClCompile Include="PhotonMap.cpp" />
+    <ClCompile Include="PlyParser.cpp" />
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="RayTracer.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="stb_image_write.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Vector.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="External/stb/stb_image.h" />
+    <ClInclude Include="External/stb/stb_image_write.h" />
+    <ClCompile Include="External/stb/stb_image_write.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

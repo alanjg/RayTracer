@@ -28,6 +28,9 @@ struct Options
 	// Use the photon map to evaluate all rays
 	bool use_photon_map_approximation;
 
+	// Use the caustics photon map to evaluate all rays
+	bool use_caustics_photon_map_approximation;
+
 	// Build and use the photon map for caustics
 	bool use_caustics;
 
@@ -37,9 +40,8 @@ struct Options
 	// Number of photons to use when sampling from the caustics photon map
 	int caustics_photon_map_sample_count;
 
-	// Use the caustics photon map to evaluate all rays
+	// Debug visualization of the caustics photon map
 	bool debug_caustics_photon_map;
-
 
 	// Number of rays to sample at each pixel
 	int num_samples;
@@ -59,6 +61,7 @@ struct Options
 		global_photon_map_photon_count = 100000;
 		global_photon_map_sample_count = 500;
 		use_photon_map_approximation = false;
+		use_caustics_photon_map_approximation = false;
 		use_caustics = false;
 		caustics_photon_map_photon_count = 20000;
 		caustics_photon_map_sample_count = 20;

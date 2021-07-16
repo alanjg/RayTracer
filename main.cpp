@@ -9,11 +9,12 @@ int main()
 	RayTracer rt;
 	Test test(rt);
 
-	global_options.max_ray_depth = 10;
-	//global_options.use_distribution_tracing = true;
-	//global_options.use_photon_mapping = true;
+	global_options.max_ray_depth = 6;
+	global_options.use_distribution_tracing = false;
+	global_options.use_photon_mapping = false;
 	global_options.photon_map_max_sample_distance = 20;
 	//global_options.use_photon_map_approximation = true;
+	//global_options.use_caustics_photon_map_approximation = true;
 	//global_options.debug_caustics_photon_map = true;
 	global_options.use_caustics = true;
 	global_options.num_samples = 1;
@@ -26,10 +27,13 @@ int main()
 #endif // !DEBUG
 
 	//rt.LoadScene("g:/code/raytracer/Scenes/cornell_water.txt");
-	test.LoadTestScene8();
+	test.LoadCausticGlassPolygon();
 	//rt.RenderToFile("test.png", 2560, 1440);
-	//rt.RenderToFile("test.png", 400, 400);
-	rt.RenderToFile("test.png", 800, 800);
+	rt.RenderToFile("test.png", 52, 75);
+	//rt.RenderToFile("test.png", 800, 800);
+	//global_options.debug_caustics_photon_map = true;
+	//rt.RenderToFile("testmap.png", 400, 400);
+	
 
 	std::chrono::system_clock::time_point t2 = std::chrono::system_clock::now();
 

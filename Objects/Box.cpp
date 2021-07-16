@@ -8,7 +8,13 @@ Box::Box(Box3 bounds) :
 
 bool Box::GetIntersectionPoints(const Ray& ray, std::vector<Intersection>& intersectionPoints, Intersection& firstIntersection, double tMin, double tMax, bool firstPointOnly) const
 {
+	if (bounds_.Intersect(ray, tMin, tMax))
+	{
+		if (firstPointOnly)
+		{
 
+		}
+	}
 	return firstIntersection.distance < tMin || intersectionPoints.size() > 0;
 }
 

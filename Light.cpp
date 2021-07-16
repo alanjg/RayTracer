@@ -65,6 +65,61 @@ bool PointLight::IsOccluded(const Intersection& surfaceIntersection, const Inter
 	}
 }
 
+
+SpotLight::SpotLight(const Vector3& position, const Vector3& direction, float totalAngle, float falloffAngle, const Color& power, const Color& emittance) :
+	Light(power), position_(position), direction_(direction), totalAngle_(totalAngle), falloffAngle_(falloffAngle), emittance_(emittance)
+{
+}
+
+Photon SpotLight::GenerateRandomPhoton(Vector3& direction) const
+{
+	GenerateRandomDirectionInSphere(direction);
+	Photon photon;
+	photon.position = position_;
+	photon.power = power_;
+	return photon;
+}
+
+Color SpotLight::SampleLightEmittance(const Intersection& intersection, Vector3& sampleDirection, double& samplePdf) const
+{
+	sampleDirection = position_ - intersection.point;
+	sampleDirection.Normalize();
+	samplePdf = 1.0;
+	return emittance_;
+}
+
+double SpotLight::EvaluateRadianceTransfer(const Intersection& surfaceIntersection, const Intersection& shadowRayIntersection) const
+{
+	double surfaceCosine = std::abs(surfaceIntersection.normal.Dot(shadowRayIntersection.incidentRay.direction));
+	double lightCosine = 1.0;
+
+	double distSquared = (surfaceIntersection.point - position_).MagnitudeSquared();
+	double g = surfaceCosine * lightCosine / distSquared;
+	double v = IsOccluded(surfaceIntersection, shadowRayIntersection) ? 0.0 : 1.0;
+	return g * v;
+}
+
+bool SpotLight::IsOccluded(const Intersection& surfaceIntersection, const Intersection& shadowRayIntersection) const
+{
+	if (shadowRayIntersection.hitObject == nullptr)
+	{
+		return false;
+	}
+	else
+	{
+		double distToLight = (position_ - surfaceIntersection.point).Magnitude();
+		if (GreaterThan(distToLight, shadowRayIntersection.distance))
+		{
+			// We hit something closer than the light point
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+}
+
 /*
 Vector3 PointLight::GetRandomPointOnLight() const
 {
